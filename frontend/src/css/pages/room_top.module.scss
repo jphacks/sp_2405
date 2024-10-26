@@ -1,0 +1,108 @@
+.subtitle {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #000;
+  padding-bottom: 0.5rem;
+  }
+  
+.header {
+  width: 100%;
+  height: 120px;
+  display: flex;
+  align-items: start;
+  padding: 1rem 2rem;
+  background: rgb(63,97,160);
+  background: linear-gradient(100deg, rgba(63,97,160,1) 0%, rgba(96,145,235,1) 100%);
+  position: relative;
+}
+
+.exitButton {
+  display: flex;
+  align-items: center;
+  color: #ff0000;
+  font-weight: bold;
+  left: 10px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.logoutIconContainer {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.cycleInfo {
+  display: flex;
+  gap: 20px;
+  font-size: 40px;
+  color: #ffffff;
+  position: absolute;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.cycleInfo span {
+  white-space: nowrap;
+  color: #ffffff;
+}
+
+.cardContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.card {
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 230px;
+}
+
+.username {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.userIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.cycle,
+.time {
+  font-size: 0.9rem;
+  color: #000;
+}
+
+.rating {
+  margin: 0.5rem 0;
+}
+
+.full {
+  color: orange;
+}
+
+.empty {
+  color: lightgray;
+}
+
+.comment {
+  font-size: 0.85rem;
+  margin: 1rem 0;
+}
+
+.likes {
+  font-size: 0.85rem;
+  color: #777;
+  display: flex;
+  align-items: center;
+}

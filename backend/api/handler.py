@@ -1,8 +1,12 @@
 import re
 
-from sqlalchemy import create_engine, Column, String, DateTime, Integer, ForeignKey, select
+from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer, ForeignKey, select, or_
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import relationship, sessionmaker, joinedload
+from marshmallow import Schema, fields
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from ulid import ULID
+
 
 # ベースクラスの作成
 Base = declarative_base()
@@ -22,6 +26,22 @@ class Tokens(Base):
     user_id = Column(String(26), ForeignKey('userdata.user_id', ondelete='CASCADE'), primary_key=True)
     session_token = Column(String(26), nullable=False, unique=True)
 
+# 進捗報告(progress_info)テーブルの定義
+class ProgressInfo(Base):
+    __tablename__ = 'progress_info'
+    progress_id = Column(String(26), primary_key=True)
+    user_id = Column(String(26), ForeignKey('userdata.user_id', ondelete='CASCADE'), nullable=False)
+    start = Column(DateTime, nullable=False)
+    progress_eval = Column(Integer)
+    progress_comment = Column(String(256))
+    room_id = Column(String(26), ForeignKey('room_info.room_id', ondelete='CASCADE'), nullable=False)
+
+# リアクション情報(reaction_info)テーブルの定義
+class ReactionInfo(Base):
+    __tablename__ = 'reaction_info'
+    user_id = Column(String(26), ForeignKey('userdata.user_id', ondelete='CASCADE'), nullable=False ,primary_key=True)
+    progress_id = Column(String(26), ForeignKey('progress_info.progress_id', ondelete='CASCADE'), nullable=False, primary_key=True)
+
 # 部屋情報(room_info)テーブルの定義
 class RoomInfo(Base):
     __tablename__ = 'room_info'
@@ -30,14 +50,31 @@ class RoomInfo(Base):
     description = Column(String(64), nullable=False)
     start_at = Column(DateTime, nullable=False)
     cycle_num = Column(Integer, nullable=False)
-    tags = relationship('TagInfo', secondary='room_tag', back_populates='rooms')
+    cycle_current = Column(Integer, nullable=False)
+    is_active = Column(Boolean, nullable=False)
+    image_path = Column(String(128))
+    tag_id = Column(String(26), ForeignKey('tag_info.tag_id', ondelete='SET NULL'))
+    # tags = relationship('TagInfo', secondary='room_tag', back_populates='rooms')
+    tag = relationship('TagInfo')
 
 # タグ情報(tag_info)テーブルの定義
 class TagInfo(Base):
     __tablename__ = 'tag_info'
     tag_id = Column(String(26), primary_key=True)
     name = Column(String(64), nullable=False, unique=True)
-    rooms = relationship('RoomInfo', secondary='room_tag', back_populates='tags')
+    color = Column(String(7), nullable=False, unique=True)
+    rooms = relationship('RoomInfo', back_populates='tag')
+    # rooms = relationship('RoomInfo', secondary='room_tag', back_populates='tags')
+
+class RoomInfoSchema(SQLAlchemyAutoSchema):
+    tag_id = fields.String()
+    tag_name = fields.String(attribute="tag.name")
+    tag_color = fields.String(attribute="tag.color")
+
+    class Meta:
+        model = RoomInfo
+        include_fk = True
+        load_instance = True
 
 # 部屋-タグ中間テーブル(room_tag)の定義
 class RoomTag(Base):
@@ -51,6 +88,16 @@ engine = create_engine('mysql://pomodoro:pomodoro@localhost:3306/pomodoro')
 def create():
     # テーブルの作成
     Base.metadata.create_all(engine)
+    study = TagInfo(tag_id='tag1', name='Study', color='#F24822')
+    work = TagInfo(tag_id='tag2', name='Work', color='#52f00e')
+    programming = TagInfo(tag_id='tag3', name='Programming', color='#FFA629')
+    workout = TagInfo(tag_id='tag4', name='Workout', color='#FACC00')
+
+
+    for data in [study, work, programming, workout]:
+        if not session.query(TagInfo).filter(TagInfo.tag_id == data.tag_id).first():
+            session.add(data)
+            session.commit()
 
 SessionClass = sessionmaker(engine)
 session = SessionClass()
@@ -67,7 +114,29 @@ def get_token(user_id: str) -> str:
 
     return token
 
-def verify(query: str, password: str) -> bool:
+# ユーザー名が重複していないか確認
+def verify_register(username: str, email: str) -> (bool, list[str]):
+    same_name_user = session.query(UserData).filter(UserData.username == username).all()
+    same_email_user = session.query(UserData).filter(UserData.email == email).all()
+    error = []
+    if len(same_name_user) > 0:
+        error.append('An account with the user name already exists')
+    if len(same_email_user) > 0:
+        error.append('An account with the email address already exists')
+
+    if len(error) > 0:
+        return False, error
+    else:
+        return True , []
+
+# ユーザー情報を新規登録
+def register(username: str, email: str, password: str) -> bool:
+    user = UserData(username=username, email=email, password=password, user_id=ULID())
+    session.add(user)
+    session.commit()
+    return True
+
+def verify_login(query: str, password: str) -> bool:
     if re.match(r'.+@.+\..+', query):
         user =  session.query(UserData).filter(UserData.email == query, UserData.password == password).one()
     else:
@@ -86,5 +155,84 @@ def get_user_from_token(token: str):
             'username': user.username,
             'email': user.email,
         }
-
         return data
+
+def get_all_rooms():
+    rooms = session.query(RoomInfo).filter(RoomInfo.is_active == True).options(joinedload(RoomInfo.tag)).all()
+    data = {
+        'data': RoomInfoSchema().dump(rooms, many=True)
+    }
+    return data
+
+
+def search_rooms(param: str = None, tag: str = None):
+    query = session.query(RoomInfo).filter(RoomInfo.is_active == True)
+
+    if param:
+        query = query.filter(or_(
+            RoomInfo.title.contains(param),
+            RoomInfo.description.contains(param)
+        ))
+
+    if tag:
+        query = query.join(RoomTag).join(TagInfo).filter(
+            TagInfo.name == tag
+        )
+
+    rooms = query.all()
+
+    print(rooms)
+
+    data = [
+        {
+            'room_id': room.room_id,
+            'title': room.title,
+            'description': room.description,
+            'start_at': room.start_at,
+            'cycle_num': room.cycle_num,
+            'tags': [tag.name for tag in room.tags],
+        }
+        for room in rooms
+    ]
+
+    return data
+def create_room(title: str, description: str, start_at: str, cycle_num: int):
+    room = RoomInfo(
+        room_id=ULID(),
+        title=title,
+        description=description,
+        start_at=start_at,
+        cycle_num=cycle_num,
+        cycle_current=0,
+        is_active=True
+    )
+    session.add(room)
+    session.commit()
+
+def get_user_info(user_id: str):
+    user = session.query(UserData).filter(UserData.user_id == user_id).one()
+
+    data = {
+        'username': user.username,
+        'user_image': None
+    }
+    return data
+
+def save_progress(user_id: str, start: str, progress_eval: int, progress_comment: str, room_id: str):
+    if session.query(UserData).filter(UserData.user_id == user_id).scalar() is None:
+        return False, ['Designated user does not exist']
+    print(session.query(RoomInfo).filter(RoomInfo.room_id == room_id).scalar())
+    if session.query(RoomInfo).filter(RoomInfo.room_id == room_id).scalar() is None:
+        return False, ['Designated room does not exist']
+
+    progress = ProgressInfo(
+        progress_id=ULID(),
+        user_id=user_id,
+        start=start,
+        progress_eval=progress_eval,
+        progress_comment=progress_comment,
+        room_id=room_id
+    )
+    session.add(progress)
+    session.commit()
+    return True, []

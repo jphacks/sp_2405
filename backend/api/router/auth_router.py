@@ -2,16 +2,26 @@ from fastapi import APIRouter, Request, Response, status
 from fastapi.responses import JSONResponse
 from ulid import ULID
 
-from api.handler import get_user_from_token, verify, set_token
-from api.schemas.shcema import LoginCred
+from api.handler import get_user_from_token, verify_login, set_token
+import api.handler as handler
+from api.schemas.schema import LoginCred, RegisterCred
 
 auth_router = APIRouter(prefix='/auth')
+
+@auth_router.post(path="/register")
+async def register(data: RegisterCred):
+  is_valid, error = handler.verify_register(data.username, data.email)
+  if not is_valid:
+    return JSONResponse({'detail': error}, status_code=status.HTTP_400_BAD_REQUEST)
+
+  handler.register(data.username, data.email, data.password)
+  return JSONResponse({'detail': 'Registration successful'}, status_code=status.HTTP_200_OK)
 
 @auth_router.post(path="/login")
 async def login(res: Response, data: LoginCred):
   query = data.username
   password = data.password
-  user_id = verify(query, password)
+  user_id = verify_login(query, password)
   if user_id:
     token = ULID()
     res.set_cookie(key='CLIENT_TOKEN', value=str(token))

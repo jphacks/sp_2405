@@ -4,6 +4,7 @@ import { AuthContext } from "../contexts/AuthContext";
 import Home from "../pages/Home";
 import FindRoom from "../components/FindRoom";
 import Analysis from "../components/Analysis";
+import RoomTop from "../pages/RoomTop";
 
 
 const HomeRoute = () => {
@@ -15,6 +16,7 @@ const HomeRoute = () => {
         <Route path="analysis" element={<Analysis />} />
       </Route>
       {/* <Route path="room"></Route> */}
+      <Route path="room" element={<RoomTop />} />
     </Routes>
   );
 };

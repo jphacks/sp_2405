@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 
 from api.router.auth_router import auth_router
 import api.handler as handler
-from api.schemas.shcema import CreateRoomCred, SaveProgressCred
+from api.schemas.schema import RoomConditions, CreateRoomCred, SaveProgressCred
 
 router = APIRouter(prefix='/api')
 router.include_router(auth_router)
@@ -17,6 +17,12 @@ async def get_all_rooms():
     data = handler.get_all_rooms()
     return JSONResponse(content=data, status_code=200)
 # @router.get(path="/users")
+
+@router.get("/search_rooms")
+def search_rooms(data: RoomConditions):
+    rooms = handler.search_rooms(data.param, data.tag)
+    print(rooms)
+    return {"data": rooms}
 
 @router.post(path="/create_room")
 async def create_room(data: CreateRoomCred):

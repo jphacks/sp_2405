@@ -1,10 +1,11 @@
 import re
 
-from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer, ForeignKey, select
+from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer, ForeignKey, select, or_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from marshmallow import Schema, fields
 from ulid import ULID
+
 
 # ベースクラスの作成
 Base = declarative_base()
@@ -136,7 +137,6 @@ def get_user_from_token(token: str):
             'username': user.username,
             'email': user.email,
         }
-
         return data
 
 def get_all_rooms():
@@ -146,6 +146,38 @@ def get_all_rooms():
     }
     return data
 
+
+def search_rooms(param: str = None, tag: str = None):
+    query = session.query(RoomInfo).filter(RoomInfo.is_active == True)
+
+    if param:
+        query = query.filter(or_(
+            RoomInfo.title.contains(param),
+            RoomInfo.description.contains(param)
+        ))
+
+    if tag:
+        query = query.join(RoomTag).join(TagInfo).filter(
+            TagInfo.name == tag
+        )
+
+    rooms = query.all()
+
+    print(rooms)
+
+    data = [
+        {
+            'room_id': room.room_id,
+            'title': room.title,
+            'description': room.description,
+            'start_at': room.start_at,
+            'cycle_num': room.cycle_num,
+            'tags': [tag.name for tag in room.tags],
+        }
+        for room in rooms
+    ]
+
+    return data
 def create_room(title: str, description: str, start_at: str, cycle_num: int):
     room = RoomInfo(
         room_id=ULID(),

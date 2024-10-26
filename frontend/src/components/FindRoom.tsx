@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import style from '../css/style.module.scss'
 import findRoom from '../css/components/find_room.module.scss'
-import { TextField, Button, IconButton } from '@mui/material'
+import { TextField, Button } from '@mui/material'
 import { Search } from '@mui/icons-material'
 import axios from 'axios'
 

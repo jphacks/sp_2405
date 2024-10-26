@@ -4,7 +4,7 @@ from ulid import ULID
 
 from api.handler import get_user_from_token, verify_login, set_token
 import api.handler as handler
-from api.schemas.shcema import LoginCred, RegisterCred
+from api.schemas.schema import LoginCred, RegisterCred
 
 auth_router = APIRouter(prefix='/auth')
 

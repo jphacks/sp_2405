@@ -5,6 +5,9 @@ class LoginCred(BaseModel):
   username: str
   password: str
 
+class RoomConditions(BaseModel):
+  param: str
+  tag: str
 class RegisterCred(BaseModel):
   username: str
   email: str

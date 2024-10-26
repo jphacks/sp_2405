@@ -1,10 +1,11 @@
 import re
 
-from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer, ForeignKey, select
+from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer, ForeignKey, select, or_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from marshmallow import Schema, fields
 from ulid import ULID
+
 
 # ベースクラスの作成
 Base = declarative_base()
@@ -32,6 +33,7 @@ class ProgressInfo(Base):
     start = Column(DateTime, nullable=False)
     progress_eval = Column(Integer)
     progress_comment = Column(String(256))
+    room_id = Column(String(26), ForeignKey('room_info.room_id', ondelete='CASCADE'), nullable=False)
 
 # リアクション情報(reaction_info)テーブルの定義
 class ReactionInfo(Base):
@@ -136,7 +138,6 @@ def get_user_from_token(token: str):
             'username': user.username,
             'email': user.email,
         }
-
         return data
 
 def get_all_rooms():
@@ -146,6 +147,38 @@ def get_all_rooms():
     }
     return data
 
+
+def search_rooms(param: str = None, tag: str = None):
+    query = session.query(RoomInfo).filter(RoomInfo.is_active == True)
+
+    if param:
+        query = query.filter(or_(
+            RoomInfo.title.contains(param),
+            RoomInfo.description.contains(param)
+        ))
+
+    if tag:
+        query = query.join(RoomTag).join(TagInfo).filter(
+            TagInfo.name == tag
+        )
+
+    rooms = query.all()
+
+    print(rooms)
+
+    data = [
+        {
+            'room_id': room.room_id,
+            'title': room.title,
+            'description': room.description,
+            'start_at': room.start_at,
+            'cycle_num': room.cycle_num,
+            'tags': [tag.name for tag in room.tags],
+        }
+        for room in rooms
+    ]
+
+    return data
 def create_room(title: str, description: str, start_at: str, cycle_num: int):
     room = RoomInfo(
         room_id=ULID(),
@@ -167,3 +200,22 @@ def get_user_info(user_id: str):
         'user_image': None
     }
     return data
+
+def save_progress(user_id: str, start: str, progress_eval: int, progress_comment: str, room_id: str):
+    if session.query(UserData).filter(UserData.user_id == user_id).scalar() is None:
+        return False, ['Designated user does not exist']
+    print(session.query(RoomInfo).filter(RoomInfo.room_id == room_id).scalar())
+    if session.query(RoomInfo).filter(RoomInfo.room_id == room_id).scalar() is None:
+        return False, ['Designated room does not exist']
+
+    progress = ProgressInfo(
+        progress_id=ULID(),
+        user_id=user_id,
+        start=start,
+        progress_eval=progress_eval,
+        progress_comment=progress_comment,
+        room_id=room_id
+    )
+    session.add(progress)
+    session.commit()
+    return True, []

@@ -11,7 +11,7 @@ auth_router = APIRouter(prefix='/auth')
 async def login(res: Response, data: LoginCred):
   query = data.username
   password = data.password
-  user_id = verify(query, password)
+  user_id = verify_login(query, password)
   if user_id:
     token = ULID()
     res.set_cookie(key='CLIENT_TOKEN', value=str(token))

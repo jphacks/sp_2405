@@ -92,7 +92,7 @@ def get_token(user_id: str) -> str:
 
     return token
 
-def verify(query: str, password: str) -> bool:
+def verify_login(query: str, password: str) -> bool:
     if re.match(r'.+@.+\..+', query):
         user =  session.query(UserData).filter(UserData.email == query, UserData.password == password).one()
     else:

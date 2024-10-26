@@ -64,6 +64,11 @@
 }
 
 .roomList {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+
   &Link {
     padding: 0;
     margin: 0;

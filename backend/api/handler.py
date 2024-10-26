@@ -4,6 +4,7 @@ from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from marshmallow import Schema, fields
+from ulid import ULID
 
 
 # ベースクラスの作成
@@ -47,6 +48,7 @@ class RoomInfo(Base):
     description = Column(String(64), nullable=False)
     start_at = Column(DateTime, nullable=False)
     cycle_num = Column(Integer, nullable=False)
+    cycle_current = Column(Integer, nullable=False)
     is_active = Column(Boolean, nullable=False)
     tags = relationship('TagInfo', secondary='room_tag', back_populates='rooms')
 
@@ -56,6 +58,7 @@ class RoomInfoSchema(Schema):
     description = fields.Str()
     start_at = fields.DateTime()
     cycle_num = fields.Int()
+    cycle_current = fields.Int()
     is_active = fields.Bool()
 
 # タグ情報(tag_info)テーブルの定義
@@ -93,7 +96,29 @@ def get_token(user_id: str) -> str:
 
     return token
 
-def verify(query: str, password: str) -> bool:
+# ユーザー名が重複していないか確認
+def verify_register(username: str, email: str) -> (bool, list[str]):
+    same_name_user = session.query(UserData).filter(UserData.username == username).all()
+    same_email_user = session.query(UserData).filter(UserData.email == email).all()
+    error = []
+    if len(same_name_user) > 0:
+        error.append('An account with the user name already exists')
+    if len(same_email_user) > 0:
+        error.append('An account with the email address already exists')
+
+    if len(error) > 0:
+        return False, error
+    else:
+        return True , []
+
+# ユーザー情報を新規登録
+def register(username: str, email: str, password: str) -> bool:
+    user = UserData(username=username, email=email, password=password, user_id=ULID())
+    session.add(user)
+    session.commit()
+    return True
+
+def verify_login(query: str, password: str) -> bool:
     if re.match(r'.+@.+\..+', query):
         user =  session.query(UserData).filter(UserData.email == query, UserData.password == password).one()
     else:
@@ -153,3 +178,15 @@ def search_rooms(param: str = None, tag: str = None):
     ]
 
     return data
+def create_room(title: str, description: str, start_at: str, cycle_num: int):
+    room = RoomInfo(
+        room_id=ULID(),
+        title=title,
+        description=description,
+        start_at=start_at,
+        cycle_num=cycle_num,
+        cycle_current=0,
+        is_active=True
+    )
+    session.add(room)
+    session.commit()

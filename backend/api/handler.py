@@ -51,6 +51,7 @@ class RoomInfo(Base):
     cycle_num = Column(Integer, nullable=False)
     cycle_current = Column(Integer, nullable=False)
     is_active = Column(Boolean, nullable=False)
+    img = Column(String(128))
     tags = relationship('TagInfo', secondary='room_tag', back_populates='rooms')
 
 class RoomInfoSchema(Schema):
@@ -67,7 +68,9 @@ class TagInfo(Base):
     __tablename__ = 'tag_info'
     tag_id = Column(String(26), primary_key=True)
     name = Column(String(64), nullable=False, unique=True)
+    color = Column(String(7), nullable=False, unique=True)
     rooms = relationship('RoomInfo', secondary='room_tag', back_populates='tags')
+
 
 # 部屋-タグ中間テーブル(room_tag)の定義
 class RoomTag(Base):
@@ -81,6 +84,16 @@ engine = create_engine('mysql://pomodoro:pomodoro@localhost:3306/pomodoro')
 def create():
     # テーブルの作成
     Base.metadata.create_all(engine)
+    study = TagInfo(tag_id='tag1', name='Study', color='#F24822')
+    work = TagInfo(tag_id='tag2', name='Work', color='#52f00e')
+    programming = TagInfo(tag_id='tag3', name='Programming', color='#FFA629')
+    workout = TagInfo(tag_id='tag4', name='Workout', color='#FACC00')
+
+
+    for data in [study, work, programming, workout]:
+        if not session.query(TagInfo).filter(TagInfo.tag_id == data.tag_id).first():
+            session.add(data)
+            session.commit()
 
 SessionClass = sessionmaker(engine)
 session = SessionClass()
@@ -142,6 +155,7 @@ def get_user_from_token(token: str):
 
 def get_all_rooms():
     rooms = session.query(RoomInfo).filter(RoomInfo.is_active == True).all()
+    print(rooms)
     data = {
         'data': RoomInfoSchema().dump(rooms, many=True)
     }

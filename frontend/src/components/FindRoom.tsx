@@ -48,13 +48,22 @@ const FindRoom = () => {
     else setSelectedTag(tag);
   };
 
-  const url = 'http://localhost:8000/api/search_rooms';
+  const url = 'http://localhost:8000/api/';
 
   const handleSearch = async () => {
-    const res = await axios.post(url, {param: searchQuery, tag: selectedTag}, {withCredentials: true});
-
-
+    const res = await axios.post(url+'search_rooms', {param: searchQuery, tag: selectedTag}, {withCredentials: true});
   }
+
+  const fetchRooms = async () => {
+    const res = await axios.get(url+'rooms', {withCredentials: true});
+    
+  }
+
+  useEffect(() => {
+    fetchRooms()
+
+  }, []);
+
 
   return (
     <>

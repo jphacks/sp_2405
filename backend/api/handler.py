@@ -33,6 +33,7 @@ class ProgressInfo(Base):
     start = Column(DateTime, nullable=False)
     progress_eval = Column(Integer)
     progress_comment = Column(String(256))
+    room_id = Column(String(26), ForeignKey('room_info.room_id', ondelete='CASCADE'), nullable=False)
 
 # リアクション情報(reaction_info)テーブルの定義
 class ReactionInfo(Base):
@@ -203,7 +204,8 @@ def save_progress(user_id: str, start: str, progress_eval: int, progress_comment
         user_id=user_id,
         start=start,
         progress_eval=progress_eval,
-        progress_comment=progress_comment
+        progress_comment=progress_comment,
+        room_id=room_id
     )
     session.add(progress)
     session.commit()

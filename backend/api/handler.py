@@ -158,3 +158,12 @@ def create_room(title: str, description: str, start_at: str, cycle_num: int):
     )
     session.add(room)
     session.commit()
+
+def get_user_info(user_id: str):
+    user = session.query(UserData).filter(UserData.user_id == user_id).one()
+
+    data = {
+        'username': user.username,
+        'user_image': None
+    }
+    return data

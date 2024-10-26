@@ -31,3 +31,10 @@ async def create_room(data: CreateRoomCred):
 
     handler.create_room(data.title, data.description, data.start_at, data.cycle_num)
     return JSONResponse(content="Creation of Room Successful", status_code=200)
+
+@router.get(path="/get_user")
+async def get_user(user_id: str):
+    return JSONResponse(
+        content={'data': handler.user_data},
+        status_code=200
+    )

@@ -20,7 +20,7 @@ async def get_all_rooms():
 # @router.get(path="/users")
 
 @router.get("/search_rooms")
-def search_rooms_endpoint(data: RoomConditions):
+def search_rooms(data: RoomConditions):
     rooms = handler.search_rooms(data.param, data.tag)
     print(rooms)
     return {"data": rooms}

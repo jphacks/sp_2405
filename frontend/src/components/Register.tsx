@@ -4,13 +4,14 @@ import { grey } from "@mui/material/colors";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import register from '../css/components/register.module.scss';
+import styles from '../css/components/register.module.scss';
 
 const Register = () => {
   const url = 'http://localhost:8000/register';
   const navigate = useNavigate();
 
   type Inputs = {
+    username: string;
     email: string;
     password: string;
   };
@@ -33,54 +34,103 @@ const Register = () => {
   } = useForm<Inputs>();
 
   return (
-    <Box className={register.container}>
-      <Typography variant="h5" className={register.title}>アカウント登録</Typography>
+    <Box
+      height={500}
+      width={400}
+      bgcolor={"rgba(255, 255, 255, 1)"}
+      borderRadius={2}
+      p={8}
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+    >
+      <Typography variant="h5" className={styles.title}>
+        アカウント登録
+      </Typography>
 
-      <form onSubmit={handleSubmit(onSubmit)} className={register.form}>
-        <FormControl fullWidth className={register.formControl}>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "100%",
+        }}
+      >
+        {/* ユーザ名の入力フィールド */}
+        <FormControl
+          error={!!errors.username}
+          fullWidth
+          sx={{ mb: 3 }} // フィールド間のマージン
+        >
           <Controller
             control={control}
-            name="email"
+            name="username"
             defaultValue=""
             rules={{
-              required: "メールアドレスは必須です",
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "無効なメールアドレスです",
-              },
+              required: "ユーザ名は必須です",
+              minLength: { value: 3, message: "ユーザ名は3文字以上で入力してください" }
             }}
             render={({ field }) => (
               <TextField
                 {...field}
-                label="メールアドレス *"
-                error={!!errors.email}
-                helperText={errors.email?.message}
+                type="text"
+                fullWidth
+                required
+                label="ユーザ名 *"
+                error={!!errors.username}
+                helperText={errors.username?.message}
               />
             )}
           />
         </FormControl>
 
-        <FormControl fullWidth className={register.formControl}>
-          <Controller
-            control={control}
-            name="password"
-            defaultValue=""
-            rules={{
-              required: "パスワードは必須です",
-            }}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                type="password"
-                label="パスワード *"
-                error={!!errors.password}
-                helperText={errors.password?.message}
-              />
-            )}
-          />
-        </FormControl>
+        {/* メールアドレスとパスワードのフィールド */}
+        {["email", "password"].map((elem) => (
+          <FormControl
+            error={!!errors[elem as keyof Inputs]}
+            key={elem}
+            fullWidth
+            sx={{ mb: 3 }}
+          >
+            <Controller
+              control={control}
+              name={elem as keyof Inputs}
+              defaultValue=""
+              rules={{
+                required: `${elem === "email" ? "メールアドレス" : "パスワード"}は必須です`,
+                ...(elem === "email" && {
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: "無効なメールアドレスです",
+                  },
+                }),
+              }}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  type={elem === "email" ? "text" : "password"}
+                  fullWidth
+                  required
+                  label={elem === "email" ? "メールアドレス *" : "パスワード *"}
+                  error={!!errors[elem as keyof Inputs]}
+                  helperText={errors[elem as keyof Inputs]?.message}
+                />
+              )}
+            />
+          </FormControl>
+        ))}
 
-        <Button type="submit" variant="contained" className={register.button}>
+        <Button
+          type="submit"
+          variant="contained"
+          sx={{
+            bgcolor: grey[900],
+            ":hover": { bgcolor: grey[800] },
+            width: "75%",
+            mt: 4,
+          }}
+        >
           アカウント登録
         </Button>
       </form>

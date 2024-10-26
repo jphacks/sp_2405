@@ -13,13 +13,16 @@ const Welcome = () => {
 
   return (
     <div className={welcome.wrapper}>
-      <div className={welcome.header}>
-        <h1 className={welcome.title}>プロダクト名</h1>
-        <p className={welcome.subtitle}>みんなで一緒にポモドーロ法、やってみませんか？</p>
-      </div>
+      <div className={welcome.box}>
+        <div className={welcome.header}>
+          <h1 className={welcome.title}>プロダクト名</h1>
+          <p className={welcome.subtitle}>みんなで一緒にポモドーロ法、やってみませんか？</p>
+        </div>
 
-      <div className={welcome.outletContainer}>
-        <Outlet />
+        <div className={welcome.outletContainer} >
+          <Outlet />
+        </div>
+
       </div>
     </div>
   );

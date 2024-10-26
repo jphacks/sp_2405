@@ -1,44 +1,47 @@
-// .wrapper {
-// display: flex;
-// flex-direction: column;
-// align-items: center;
-// background-image: url('/path/to/your/background-image.jpg'); // 背景画像を指定
-// background-size: cover;
-// padding: 20px;
-// min-height: 100vh;
-// }
-
-// .wrapper {
-//     position: relative;
-//     height: 100vh; /* Full viewport height to allow centering */
-//     display: flex;
-//     justify-content: center;
-//     align-items: center;
-//     background: linear-gradient(to right, #f5f7fa, #c3cfe2); /* Optional gradient background */
-//   }
-
 .wrapper {
+    background: url('/welcome_image.jpg');
+    background-repeat: no-repeat;
+    background-size: cover; 
+}
+
+.box {
     position: relative;
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(to right, #f5f7fa, #c3cfe2);
+    background-color: rgba(0, 0, 0, 0.2);
 }
 .header {
-text-align: center;
-margin-bottom: 20px;
+    position: absolute;
+    left: 10%;
+    top: 40%;
+    transform: translateY(-20%);
 }
 
 .title {
-font-size: 2.5rem;
-color: #fff;
-font-weight: bold;
+    font-size: 5rem;
+    font-family: 'Arial', sans-serif;
+    color: #fff;
+    margin-bottom: 10px;
+    display: inline-block;
+
+    &::after{
+        content: '';
+        display: block;
+        height: 10px;
+        width: 100%;
+        background: rgb(63,97,160);
+        background: linear-gradient(90deg, rgba(63,97,160,1) 0%, rgba(96,145,235,1) 100%);
+    }
 }
 
 .subtitle {
-color: #fff;
-font-size: 1.2rem;
+    font-size: 2rem;
+    font-family: 'Arial', sans-serif;
+    color: #fff;
+    left: 30%;
+    margin-top: 0;
 }
 
 .content {
@@ -71,7 +74,7 @@ margin-left: 5px;
 
 .outletContainer {
     position: absolute;
-    right: 25%; /* ページの右半分に配置 */
-    top: 50%;
-    transform: translateY(-50%);
+    right: 20%; /* ページの右半分に配置 */
+    top: 25%;
+    transform: translate(0%, 0%);
   }

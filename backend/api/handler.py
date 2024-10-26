@@ -47,6 +47,7 @@ class RoomInfo(Base):
     description = Column(String(64), nullable=False)
     start_at = Column(DateTime, nullable=False)
     cycle_num = Column(Integer, nullable=False)
+    cycle_current = Column(Integer, nullable=False)
     is_active = Column(Boolean, nullable=False)
     tags = relationship('TagInfo', secondary='room_tag', back_populates='rooms')
 
@@ -56,6 +57,7 @@ class RoomInfoSchema(Schema):
     description = fields.Str()
     start_at = fields.DateTime()
     cycle_num = fields.Int()
+    cycle_current = fields.Int()
     is_active = fields.Bool()
 
 # タグ情報(tag_info)テーブルの定義
@@ -143,3 +145,16 @@ def get_all_rooms():
         'data': RoomInfoSchema().dump(rooms, many=True)
     }
     return data
+
+def create_room(title: str, description: str, start_at: str, cycle_num: int):
+    room = RoomInfo(
+        room_id=ULID(),
+        title=title,
+        description=description,
+        start_at=start_at,
+        cycle_num=cycle_num,
+        cycle_current=0,
+        is_active=True
+    )
+    session.add(room)
+    session.commit()

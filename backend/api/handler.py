@@ -2,8 +2,9 @@ import re
 
 from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer, ForeignKey, select, or_
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import relationship, sessionmaker, joinedload
 from marshmallow import Schema, fields
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from ulid import ULID
 
 
@@ -51,17 +52,10 @@ class RoomInfo(Base):
     cycle_num = Column(Integer, nullable=False)
     cycle_current = Column(Integer, nullable=False)
     is_active = Column(Boolean, nullable=False)
-    img = Column(String(128))
-    tags = relationship('TagInfo', secondary='room_tag', back_populates='rooms')
-
-class RoomInfoSchema(Schema):
-    room_id = fields.Str()
-    title = fields.Str()
-    description = fields.Str()
-    start_at = fields.DateTime()
-    cycle_num = fields.Int()
-    cycle_current = fields.Int()
-    is_active = fields.Bool()
+    image_path = Column(String(128))
+    tag_id = Column(String(26), ForeignKey('tag_info.tag_id', ondelete='SET NULL'))
+    # tags = relationship('TagInfo', secondary='room_tag', back_populates='rooms')
+    tag = relationship('TagInfo')
 
 # タグ情報(tag_info)テーブルの定義
 class TagInfo(Base):
@@ -69,8 +63,18 @@ class TagInfo(Base):
     tag_id = Column(String(26), primary_key=True)
     name = Column(String(64), nullable=False, unique=True)
     color = Column(String(7), nullable=False, unique=True)
-    rooms = relationship('RoomInfo', secondary='room_tag', back_populates='tags')
+    rooms = relationship('RoomInfo', back_populates='tag')
+    # rooms = relationship('RoomInfo', secondary='room_tag', back_populates='tags')
 
+class RoomInfoSchema(SQLAlchemyAutoSchema):
+    tag_id = fields.String()
+    tag_name = fields.String(attribute="tag.name")
+    tag_color = fields.String(attribute="tag.color")
+
+    class Meta:
+        model = RoomInfo
+        include_fk = True
+        load_instance = True
 
 # 部屋-タグ中間テーブル(room_tag)の定義
 class RoomTag(Base):
@@ -154,8 +158,7 @@ def get_user_from_token(token: str):
         return data
 
 def get_all_rooms():
-    rooms = session.query(RoomInfo).filter(RoomInfo.is_active == True).all()
-    print(rooms)
+    rooms = session.query(RoomInfo).filter(RoomInfo.is_active == True).options(joinedload(RoomInfo.tag)).all()
     data = {
         'data': RoomInfoSchema().dump(rooms, many=True)
     }

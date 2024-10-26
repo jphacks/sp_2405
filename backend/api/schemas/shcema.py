@@ -15,3 +15,10 @@ class CreateRoomCred(BaseModel):
   description: str
   start_at: datetime
   cycle_num: int
+
+class SaveProgressCred(BaseModel):
+  user_id: str
+  start: datetime
+  progress_eval: int
+  progress_comment: str
+  room_id: str

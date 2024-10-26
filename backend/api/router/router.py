@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 
 from api.router.auth_router import auth_router
 import api.handler as handler
-from api.schemas.shcema import CreateRoomCred
+from api.schemas.shcema import CreateRoomCred, SaveProgressCred
 
 router = APIRouter(prefix='/api')
 router.include_router(auth_router)
@@ -31,3 +31,11 @@ async def create_room(data: CreateRoomCred):
 
     handler.create_room(data.title, data.description, data.start_at, data.cycle_num)
     return JSONResponse(content="Creation of Room Successful", status_code=200)
+
+@router.post(path="/save_progress")
+async def save_progress(data: SaveProgressCred):
+    is_valid, error = handler.save_progress(data.user_id, data.start, data.progress_eval, data.progress_comment, data.room_id)
+    if not is_valid:
+        return JSONResponse(content={'detail': error}, status_code=400)
+
+    return JSONResponse(content={'detail': "Saving progress Successful"}, status_code=200)

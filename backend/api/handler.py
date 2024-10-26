@@ -158,3 +158,21 @@ def create_room(title: str, description: str, start_at: str, cycle_num: int):
     )
     session.add(room)
     session.commit()
+
+def save_progress(user_id: str, start: str, progress_eval: int, progress_comment: str, room_id: str):
+    if session.query(UserData).filter(UserData.user_id == user_id).scalar() is None:
+        return False, ['Designated user does not exist']
+    print(session.query(RoomInfo).filter(RoomInfo.room_id == room_id).scalar())
+    if session.query(RoomInfo).filter(RoomInfo.room_id == room_id).scalar() is None:
+        return False, ['Designated room does not exist']
+
+    progress = ProgressInfo(
+        progress_id=ULID(),
+        user_id=user_id,
+        start=start,
+        progress_eval=progress_eval,
+        progress_comment=progress_comment
+    )
+    session.add(progress)
+    session.commit()
+    return True, []

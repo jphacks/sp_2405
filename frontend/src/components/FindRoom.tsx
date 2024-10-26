@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import style from '../css/style.module.scss'
 import findRoom from '../css/components/find_room.module.scss'
-import { NavLink } from 'react-router-dom'
-import { Button } from '@mui/material'
+import { TextField, Button, IconButton } from '@mui/material'
+import { Search } from '@mui/icons-material'
 import axios from 'axios'
 
 const FindRoom = () => {
@@ -44,27 +44,67 @@ const FindRoom = () => {
   const tags = ["Study", "Work", "Programming", "Writing"];
 
   const handleTagClick = (tag: string) => {
-    setSelectedTag(selectedTag === tag ? null : tag);
+    if(tag === selectedTag) setSelectedTag(null);
+    else setSelectedTag(tag);
   };
 
   const url = 'http://localhost:8000/api/search_rooms';
 
   const handleSearch = async () => {
-    const res = await axios.get(url, {param: searchQuery, tag: selectedTag}, {withCredentials: true});
+    const res = await axios.post(url, {param: searchQuery, tag: selectedTag}, {withCredentials: true});
+
 
   }
 
   return (
     <>
       <div className={findRoom.header}>
-
+        <div className={findRoom.search}>
+          <TextField
+            variant="outlined"
+            placeholder="タイトル名で検索..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={findRoom.searchQuery}
+            size="small"
+            sx={{
+              fieldset: {
+                border: "none",
+              },
+            }}
+          />
+          <ul className={findRoom.tagList}>
+            {tags.map((tag) => (
+              <li className={findRoom.tagListItem} key={tag}>
+                <Button
+                  onClick={() => handleTagClick(tag)}
+                  variant="contained"
+                  className={findRoom.tagListItemButton}
+                  sx={{
+                    backgroundColor: selectedTag === tag ? "black" : "white",
+                    "&:hover": {
+                      backgroundColor:
+                        selectedTag === tag ? "#101010" : "#f0f0f0",
+                    },
+                    color: selectedTag === tag ? "#fff" : "black",
+                  }}
+                >
+                  {tag}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <Button className={findRoom.submit} variant="contained">
+          <Search />
+        </Button>
       </div>
       <div className={style.main}>
         <h1 className={style.title}>部屋を探す</h1>
         <h2 className={findRoom.subtitle}>Active rooms</h2>
         <ul className={findRoom.roomList}>
           {rooms.map((room) => (
-            <li className={findRoom.roomListItem}>
+            <li className={findRoom.roomListItem} key={room.roomId}>
               <button
                 type="button"
                 // width='100%'

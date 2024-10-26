@@ -1,5 +1,5 @@
 import React from 'react'
-import { Search, AddCircleOutline, Person, AnalyticsOutlined, Settings } from "@mui/icons-material";
+import { Search, AddCircleOutline, Person, AnalyticsOutlined, Settings, Logout } from "@mui/icons-material";
 import home from '../css/pages/home.module.scss';
 import { NavLink, Outlet } from "react-router-dom";
 
@@ -60,6 +60,12 @@ const Home = () => {
                   <Settings />
                 </div>
                 <p className={home.sidebarColListItemText}>設定</p>
+              </li>
+              <li className={home.sidebarColListItem}>
+                <div className={home.sidebarColListItemIcon}>
+                  <Logout />
+                </div>
+                <p className={home.sidebarColListItemText}>ログアウト</p>
               </li>
             </ul>
           </div>

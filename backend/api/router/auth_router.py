@@ -15,7 +15,7 @@ async def register(data: RegisterCred):
     return JSONResponse({'detail': error}, status_code=status.HTTP_400_BAD_REQUEST)
 
   handler.register(data.username, data.email, data.password)
-  return JSONResponse({'detail': 'successful'}, status_code=status.HTTP_200_OK)
+  return JSONResponse({'detail': 'Registration successful'}, status_code=status.HTTP_200_OK)
 
 @auth_router.post(path="/login")
 async def login(res: Response, data: LoginCred):

@@ -99,9 +99,9 @@ def verify_register(username: str, email: str) -> (bool, list[str]):
     same_email_user = session.query(UserData).filter(UserData.email == email).all()
     error = []
     if len(same_name_user) > 0:
-        error.append('username is already used')
+        error.append('An account with the user name already exists')
     if len(same_email_user) > 0:
-        error.append('email is already used')
+        error.append('An account with the email address already exists')
 
     if len(error) > 0:
         return False, error

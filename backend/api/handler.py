@@ -1,10 +1,8 @@
 import re
 
-from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer, ForeignKey, select
+from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer, ForeignKey, select, or_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy import or_
-from sqlalchemy import Session
 from marshmallow import Schema, fields
 
 
@@ -124,8 +122,8 @@ def get_all_rooms():
     return data
 
 
-def search_rooms(db: Session, param: str = None, tags: List[str] = None):
-    query = db.query(RoomInfo).filter(RoomInfo.is_active == True)
+def search_rooms(param: str = None, tag: str = None):
+    query = session.query(RoomInfo).filter(RoomInfo.is_active == True)
 
     if param:
         query = query.filter(or_(
@@ -133,12 +131,14 @@ def search_rooms(db: Session, param: str = None, tags: List[str] = None):
             RoomInfo.description.contains(param)
         ))
 
-    if tags:
+    if tag:
         query = query.join(RoomTag).join(TagInfo).filter(
-            or_(*[TagInfo.name.contains(tag) for tag in tags])
+            TagInfo.name == tag
         )
 
     rooms = query.all()
+
+    print(rooms)
 
     data = [
         {

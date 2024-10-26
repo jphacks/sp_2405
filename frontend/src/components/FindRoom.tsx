@@ -3,6 +3,7 @@ import style from '../css/style.module.scss'
 import findRoom from '../css/components/find_room.module.scss'
 import { NavLink } from 'react-router-dom'
 import { Button } from '@mui/material'
+import axios from 'axios'
 
 const FindRoom = () => {
   const rooms: RoomType[] = [
@@ -37,10 +38,26 @@ const FindRoom = () => {
 
   const [modalRoom, setModalRoom] = useState<RoomType>({} as RoomType);
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+  const tags = ["Study", "Work", "Programming", "Writing"];
+
+  const handleTagClick = (tag: string) => {
+    setSelectedTag(selectedTag === tag ? null : tag);
+  };
+
+  const url = 'http://localhost:8000/api/search_rooms';
+
+  const handleSearch = async () => {
+    const res = await axios.get(url, {param: searchQuery, tag: selectedTag}, {withCredentials: true});
+
+  }
+
   return (
     <>
       <div className={findRoom.header}>
-        
+
       </div>
       <div className={style.main}>
         <h1 className={style.title}>部屋を探す</h1>

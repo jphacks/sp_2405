@@ -1,0 +1,235 @@
+.content {
+    padding: 2rem 0;
+}
+
+.subtitle {
+font-size: 1.5rem;
+margin-bottom: 1rem;
+border-bottom: 1px solid #000;
+padding-bottom: 0.5rem;
+}
+
+.chart {
+  position: relative;
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chartLegend {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column; /* 縦に並べる */
+  gap: 5px;
+  margin-left: 20px; /* グラフから右側に配置 */
+  color: #000; /* タグ名を黒に設定 */
+}
+
+.chartLegend li {
+  display: flex;
+  align-items: center;
+  font-size: 0.9pm;
+}
+
+.chartLegend span {
+  width: 15px;
+  height: 15px;
+  margin-right: 8px;
+  display: inline-block;
+  border-radius: 3px;
+}
+  // タグに対応する10個の色を設定
+  .tag1 {
+    background-color: #ff9999;
+  }
+  
+  .tag2 {
+    background-color: #ffcc99;
+  }
+  
+  .tag3 {
+    background-color: #ffff99;
+  }
+  
+  .tag4 {
+    background-color: #ccff99;
+  }
+  
+  .tag5 {
+    background-color: #99ff99;
+  }
+  
+  .tag6 {
+    background-color: #99ffcc;
+  }
+  
+  .tag7 {
+    background-color: #99ffff;
+  }
+  
+  .tag8 {
+    background-color: #99ccff;
+  }
+  
+  .tag9 {
+    background-color: #9999ff;
+  }
+  
+  .tag10 {
+    background-color: #cc99ff;
+  }
+
+// 取り組んだ内容
+.cardContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.card {
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 230px; /* アイコンなどを含め少し幅を広く */
+}
+
+.username {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  
+  .userIcon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+}
+
+.cycle,
+.time {
+  font-size: 0.9rem;
+  color: #777;
+}
+
+.rating {
+  margin: 0.5rem 0;
+
+  .full {
+    color: orange;
+  }
+
+  .empty {
+    color: lightgray;
+  }
+}
+
+.comment {
+  font-size: 0.85rem;
+  margin: 1rem 0;
+}
+
+.likes {
+  font-size: 0.85rem;
+  color: #777;
+  display: flex;
+  align-items: center;
+}
+
+// 今月の成果
+.contributionWrapper {
+    display: flex; /* グラフと凡例を横並びに配置 */
+    align-items: flex-start; /* 上に揃える */
+    flex-direction: column; /* 縦に並べる */
+}
+
+.contributionGraph {
+    display: grid;
+    grid-template-columns: 0fr; /* 左に時間ラベル、右に1列のグリッド */
+    grid-template-rows: repeat(8, auto);
+    gap: 2px;
+    // margin-right: 20px;
+    margin-bottom: 10px;
+}
+
+.week {
+display: grid;
+grid-template-columns: auto repeat(30, 1fr); /* 各時間ごとの30列 */
+// grid-template-rows: auto; /* 縦に並べる */
+gap: 2px;
+}
+
+.dateLabels {
+display: grid;
+grid-template-columns: auto repeat(30, 1fr); /* 左に空白、右に30個の日付 */
+margin-bottom: 10px;
+text-align: center; /* 日付を中央に揃える */
+}
+
+.date {
+text-align: center;
+font-size: 12px;
+}
+
+.timeLabel {
+width: 60px;
+white-space: nowrap;
+display: flex;
+align-items: center;
+justify-content: flex-start;
+grid-column: 1 / 2; /* 時間ラベルを一番左に固定 */
+font-size: 12px;
+margin-right: 20px;
+}
+
+.day {
+width: 15px;
+height: 15px;
+background-color: #ebedf0;
+border-radius: 3px;
+}
+
+.legendWrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.legendTitle {
+font-size: 14px;
+margin-right: 10px;
+}
+
+.legend {
+display: flex;
+align-items: center;
+}
+
+.legendColor {
+width: 15px;
+height: 15px;
+margin-right: 5px;
+display: inline-block;
+// background-color: #ebedf0;
+}
+/* 貢献度に応じた色の設定 */
+.contribution-0 {
+background-color: #ebedf0 !important;
+}
+.contribution-1 {
+background-color: #9be9a8 !important;
+}
+.contribution-2 {
+background-color: #40c463 !important;
+}
+.contribution-3 {
+background-color: #30a14e !important;
+}
+.contribution-4 {
+background-color: #216e39 !important;
+}

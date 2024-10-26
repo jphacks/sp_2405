@@ -1,6 +1,6 @@
 import re
 
-from sqlalchemy import create_engine, Column, String, DateTime, Integer, ForeignKey, select
+from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer, ForeignKey, select
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
@@ -22,6 +22,9 @@ class Tokens(Base):
     user_id = Column(String(26), ForeignKey('userdata.user_id', ondelete='CASCADE'), primary_key=True)
     session_token = Column(String(26), nullable=False, unique=True)
 
+# セッション履歴(session_history)テーブルの定義
+
+
 # 部屋情報(room_info)テーブルの定義
 class RoomInfo(Base):
     __tablename__ = 'room_info'
@@ -30,6 +33,7 @@ class RoomInfo(Base):
     description = Column(String(64), nullable=False)
     start_at = Column(DateTime, nullable=False)
     cycle_num = Column(Integer, nullable=False)
+    is_active = Column(Boolean, nullable=False)
     tags = relationship('TagInfo', secondary='room_tag', back_populates='rooms')
 
 # タグ情報(tag_info)テーブルの定義

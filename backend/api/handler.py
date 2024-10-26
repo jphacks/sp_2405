@@ -22,8 +22,20 @@ class Tokens(Base):
     user_id = Column(String(26), ForeignKey('userdata.user_id', ondelete='CASCADE'), primary_key=True)
     session_token = Column(String(26), nullable=False, unique=True)
 
-# セッション履歴(session_history)テーブルの定義
+# 進捗報告(progress_info)テーブルの定義
+class ProgressInfo(Base):
+    __tablename__ = 'progress_info'
+    progress_id = Column(String(26), primary_key=True)
+    user_id = Column(String(26), ForeignKey('userdata.user_id', ondelete='CASCADE'), nullable=False)
+    start = Column(DateTime, nullable=False)
+    progress_eval = Column(Integer)
+    progress_comment = Column(String(256))
 
+# リアクション情報(reaction_info)テーブルの定義
+class ReactionInfo(Base):
+    __tablename__ = 'reaction_info'
+    user_id = Column(String(26), ForeignKey('userdata.user_id', ondelete='CASCADE'), nullable=False ,primary_key=True)
+    progress_id = Column(String(26), ForeignKey('progress_info.progress_id', ondelete='CASCADE'), nullable=False, primary_key=True)
 
 # 部屋情報(room_info)テーブルの定義
 class RoomInfo(Base):

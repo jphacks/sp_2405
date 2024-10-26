@@ -38,6 +38,13 @@ async def create_room(data: CreateRoomCred):
     handler.create_room(data.title, data.description, data.start_at, data.cycle_num)
     return JSONResponse(content="Creation of Room Successful", status_code=200)
 
+@router.get(path="/get_user")
+async def get_user(user_id: str):
+    return JSONResponse(
+        content={'data': handler.user_data},
+        status_code=200
+    )
+
 @router.post(path="/save_progress")
 async def save_progress(data: SaveProgressCred):
     is_valid, error = handler.save_progress(data.user_id, data.start, data.progress_eval, data.progress_comment, data.room_id)

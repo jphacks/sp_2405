@@ -3,6 +3,7 @@ import re
 from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer, ForeignKey, select
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
+from marshmallow import Schema, fields
 
 # ベースクラスの作成
 Base = declarative_base()
@@ -47,6 +48,14 @@ class RoomInfo(Base):
     cycle_num = Column(Integer, nullable=False)
     is_active = Column(Boolean, nullable=False)
     tags = relationship('TagInfo', secondary='room_tag', back_populates='rooms')
+
+class RoomInfoSchema(Schema):
+    room_id = fields.Str()
+    title = fields.Str()
+    description = fields.Str()
+    start_at = fields.DateTime()
+    cycle_num = fields.Int()
+    is_active = fields.Bool()
 
 # タグ情報(tag_info)テーブルの定義
 class TagInfo(Base):
@@ -104,3 +113,10 @@ def get_user_from_token(token: str):
         }
 
         return data
+
+def get_all_rooms():
+    rooms = session.query(RoomInfo).filter(RoomInfo.is_active == True).all()
+    data = {
+        'data': RoomInfoSchema().dump(rooms, many=True)
+    }
+    return data

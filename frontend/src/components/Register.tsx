@@ -3,6 +3,7 @@ import { Box, TextField, Button, FormControl, Typography } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { Link } from 'react-router-dom';
 import axios from "axios";
 import styles from '../css/components/register.module.scss';
 
@@ -61,7 +62,7 @@ const Register = () => {
         <FormControl
           error={!!errors.username}
           fullWidth
-          sx={{ mb: 3 }} // フィールド間のマージン
+          sx={{ mb: 3, mt: 2}} // フィールド間のマージン
         >
           <Controller
             control={control}
@@ -128,12 +129,28 @@ const Register = () => {
             bgcolor: grey[900],
             ":hover": { bgcolor: grey[800] },
             width: "75%",
-            mt: 4,
+            mt: 2,
           }}
         >
           アカウント登録
         </Button>
       </form>
+
+      <Typography
+        variant="body2"
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          mt: 4,
+        }}
+        className={styles.toLogin}
+      >
+        <p>アカウントをお持ちでしたか？</p>
+        <Link to="../login" style={{ color: '#1a73e8', textDecoration: 'none' }}>
+          ログイン画面に戻る
+        </Link>
+      </Typography>
     </Box>
   );
 };

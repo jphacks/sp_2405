@@ -34,14 +34,14 @@ const Login = () => {
           flexDirection: "column",
           alignItems: "center",
           width: "100%",
-        }}
+        }}// フォームの上のマージン
       >
         {["email", "password"].map((elem) => (
           <FormControl
             error={!!errors[elem]}
             key={elem}
             fullWidth
-            sx={{ mb: 3 }} // フィールド間のマージン
+            sx={{ mb: 0, mt: 6}} // フィールド間のマージン
           >
             <Controller
               control={control}
@@ -78,7 +78,7 @@ const Login = () => {
             bgcolor: grey[900],
             ":hover": { bgcolor: grey[800] },
             width: "75%",
-            mt: 4, // ボタンの上のマージン
+            mt: 6, // ボタンの上のマージン
           }}
         >
           ログイン

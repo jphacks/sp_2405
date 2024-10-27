@@ -13,7 +13,7 @@ const RoomData = {
   roomMembers: 5,
   roomMembersName: ["misaizu", "Uuekun", "kazuki", "yamada", "suzuki"],
   roomMembersIcon: ["A.png", "B.png", "C.png", "D.png", "E.png"],
-  roomStartTime: "2024/10/27 09:50:50", // 手動で設定
+  roomStartTime: "2024/10/27 10:04:50", // 手動で設定
   roomCycles: 3,
   userData: [
     {
@@ -249,7 +249,7 @@ const RoomTop: React.FC = () => {
       </Link>
     </div>
   );
-  
+
 
   // ページのレンダリング
   const renderPage = () => {

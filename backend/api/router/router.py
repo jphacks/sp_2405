@@ -49,9 +49,12 @@ async def get_user(user_id: str):
         status_code=200
     )
 
-@router.get(path="get_room")
+@router.get(path="/get_room")
 async def get_room(req: Request):
     room_id = req.cookies.get('ROOM_ID', '')
+    print(room_id)
     data = handler.get_room(room_id)
     if not data:
-        return JSONResponse({'detail': 'room is not found'}, status_code=)
+        return JSONResponse({'detail': 'room is not found'}, status_code=status.HTTP_404_NOT_FOUND)
+
+    return JSONResponse(data, status_code=status.HTTP_200_OK)

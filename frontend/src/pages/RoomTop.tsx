@@ -8,6 +8,7 @@ import axios from 'axios';
 import { AuthContext } from '../contexts/AuthContext';
 
 // RoomDataを手動で設定
+/*
 const RoomData = {
   roomName: "数学を頑張る部屋",
   roomOwner: "misaizu",
@@ -38,6 +39,30 @@ const RoomData = {
     },
   ],
 };
+*/
+type UserType = {
+  username: string,
+  img: string,
+}
+
+type ProgressType = {
+  user: UserType,
+  cycle: number,
+  duration: string,
+  rating: number,
+  comment: string,
+  likes: number,
+}
+
+type RoomDataType = {
+  title: string,
+  description: string,
+  cycleNum: number,
+  cycleCurrent: number,
+  startAt: Date,
+  users: UserType[],
+  progress: ProgressType[],
+}
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -45,15 +70,18 @@ const RoomTop: React.FC = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState<number>(0); // 0: Waiting, 1: Focus, 2: Rest Start, 3: Rest Review
   const [remainingTime, setRemainingTime] = useState<number>(0); // 残り時間（秒）
-  const [remainingCycles, setRemainingCycles] = useState<number>(RoomData.roomCycles);
+  const [remainingCycles, setRemainingCycles] = useState<number>(0);
   const [isButtonPressed, setIsButtonPressed] = useState<boolean>(false); // ページ2でボタンが押されたか
+
+  const [room, setRoom] = useState<RoomDataType>({} as RoomDataType);
 
   const focusDuration = 10500; // テスト用: 集中時間（秒）
   const restDuration = 7; // テスト用: 休憩時間（秒）
   const totalCycleTime = focusDuration + restDuration; // 各サイクルの総時間（秒）
 
   // roomStartTimeをDateオブジェクトに変換
-  const roomStartTimestamp = new Date(RoomData.roomStartTime).getTime();
+  const [roomStartTimestamp, setRoomStartTimestamp] = useState(Date.now());
+  // const roomStartTimestamp = new Date(RoomData.roomStartTime).getTime();
 
   // 現在の状態を計算する関数
   const calculateState = useCallback(() => {
@@ -68,7 +96,7 @@ const RoomTop: React.FC = () => {
     }
 
     const elapsedTime = Math.floor((now - roomStartTimestamp) / 1000); // 経過秒数
-    const totalTime = RoomData.roomCycles * totalCycleTime;
+    const totalTime = room.cycleNum * totalCycleTime;
 
     if (elapsedTime >= totalTime) {
       // 全サイクル終了
@@ -79,7 +107,7 @@ const RoomTop: React.FC = () => {
     const currentCycle = Math.floor(elapsedTime / totalCycleTime) + 1;
     const cycleTime = elapsedTime % totalCycleTime;
 
-    setRemainingCycles(RoomData.roomCycles - currentCycle + 1);
+    setRemainingCycles(room.cycleNum - currentCycle + 1);
 
     if (cycleTime < focusDuration) {
       // ページ1: 集中時間
@@ -118,6 +146,12 @@ const RoomTop: React.FC = () => {
   const socketRef = useRef<WebSocket>();
   const { userData } = useContext(AuthContext);
 
+  const fetchRoom = async () => {
+    const res = await axios.get('http://localhost:8000/api/get_room', {withCredentials: true})
+    console.log(res.data);
+
+  }
+
   useEffect(() => {
     const params = new URLSearchParams({user_id: userData.user_id});
     const ws = new WebSocket(
@@ -129,6 +163,8 @@ const RoomTop: React.FC = () => {
       console.log(JSON.parse(e.data));
       // console.log(rows);
     };
+
+    fetchRoom();
 
     return () => {
 
@@ -228,14 +264,14 @@ const RoomTop: React.FC = () => {
             marginBottom: '20px',
           }}
         >
-          {RoomData.roomName}
+          {room.title}
         </h2>
         <div style={{ display: 'flex', gap: '10px', marginBottom: '40px' }}>
-          {RoomData.roomMembersIcon.map((icon, index) => (
+          {room.users.map((user) => (
             <img
-              key={index}
-              src={icon}
-              alt={`User Icon ${index}`}
+              key={user.username}
+              src={user.img}
+              alt={`User Icon ${user.username}`}
               style={{ width: '40px', height: '40px', borderRadius: '50%' }}
             />
           ))}
@@ -383,11 +419,11 @@ const RoomTop: React.FC = () => {
             <span>次のサイクルまで {formatTime(remainingTime)}</span>
           </div>
         </header>
-        <h2 className={styles.subtitle}>{RoomData.roomName}</h2>
+        <h2 className={styles.subtitle}>{room.title}</h2>
         <p>残り時間: {formatTime(remainingTime)}</p>
         <div className={styles.cardContainer}>
-          {RoomData.userData
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+          {room.progress
+            .sort((p) => new Date(p.date).getTime() - new Date(a.date).getTime())
             .map((user, index) => (
               <div key={index} className={styles.card}>
                 <p className={styles.username}>

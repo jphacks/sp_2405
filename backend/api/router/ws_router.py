@@ -82,20 +82,20 @@ class Home:
 
 home = Home()
 
-# after_insertイベント
-@event.listens_for(handler.RoomInfo, "after_insert")
-def after_insert(mapper, connection, target):
-    asyncio.create_task(home.broadcast(f"[INSERT] New record added: {target.name}, Age: {target.age}"))
+# # after_insertイベント
+# @event.listens_for(handler.RoomInfo, "after_insert")
+# def after_insert(mapper, connection, target):
+#     asyncio.create_task(home.broadcast(f"[INSERT] New record added: {target.name}, Age: {target.age}"))
 
-# after_updateイベント
-@event.listens_for(handler.RoomInfo, "after_update")
-def after_update(mapper, connection, target):
-    asyncio.create_task(home.broadcast(f"[UPDATE] Record updated: {target.name}, Age: {target.age}"))
+# # after_updateイベント
+# @event.listens_for(handler.RoomInfo, "after_update")
+# def after_update(mapper, connection, target):
+#     asyncio.create_task(home.broadcast(f"[UPDATE] Record updated: {target.name}, Age: {target.age}"))
 
-# after_deleteイベント
-@event.listens_for(handler.RoomInfo, "after_delete")
-def after_delete(mapper, connection, target):
-    asyncio.create_task(home.broadcast(f"[DELETE] Record deleted: ID {target.id}"))
+# # after_deleteイベント
+# @event.listens_for(handler.RoomInfo, "after_delete")
+# def after_delete(mapper, connection, target):
+#     asyncio.create_task(home.broadcast(f"[DELETE] Record deleted: ID {target.id}"))
 
 @ws_router.websocket('/home')
 async def ws_home():

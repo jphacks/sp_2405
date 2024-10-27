@@ -1,17 +1,17 @@
 import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-// import Login from "../../components/auth/Login";
-// import Signup from "../../components/auth/Signup";
-// import Auth from "../../pages/Auth";
+import Welcome from "../pages/Welcome";
+import Login from "../components/Login";
+import Register from "../components/Register";
 
 const AuthRoute = () => {
   return (
     <Routes>
-      {/* <Route path="" element={<Auth />}>
+      <Route path="/" element={<Welcome />}>
         <Route path="login" element={<Login />} />
-        <Route path="signup" element={<Signup />} />
-        <Route path="" element={<Navigate to="login" replace />} />
-      </Route> */}
+        <Route path="register" element={<Register />} />
+        <Route index element={<Navigate to="login" replace />} />
+      </Route>
     </Routes>
   );
 };

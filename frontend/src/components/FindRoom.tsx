@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react'
 import style from '../css/style.module.scss'
 import findRoom from '../css/components/find_room.module.scss'
 import { TextField, Button } from '@mui/material'
-import { Search } from '@mui/icons-material'
+import { Search, Add } from '@mui/icons-material'
 import axios from 'axios'
+import CreateRoom from './CreateRoom'
 
 const FindRoom = () => {
   type RoomType = {
@@ -54,6 +55,16 @@ const FindRoom = () => {
 
   }, []);
 
+  const [open, setOpen] = useState(false);
+
+  const onClose = () => {
+    setOpen(false);
+    // setSelectedValue(value);
+  };
+
+  const handleClick = (e) => {
+    setOpen(true);
+  }
 
   return (
     <>
@@ -149,7 +160,15 @@ const FindRoom = () => {
             </li>
           ))}
         </ul>
+        <Button
+          variant='contained'
+          className={findRoom.createButton}
+          onClick={handleClick}
+        >
+          <Add />
+        </Button>
       </div>
+      <CreateRoom open={open} onClose={onClose} />
     </>
   );
 }

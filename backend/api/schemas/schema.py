@@ -18,6 +18,7 @@ class CreateRoomCred(BaseModel):
   description: str
   start_at: datetime
   cycle_num: int
+  tag: str
 
 class SaveProgress(BaseModel):
   user_id: str

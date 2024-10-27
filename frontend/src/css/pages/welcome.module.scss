@@ -1,0 +1,80 @@
+.wrapper {
+    background: url('/welcome_image.jpg');
+    background-repeat: no-repeat;
+    background-size: cover; 
+}
+
+.box {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+.header {
+    position: absolute;
+    left: 10%;
+    top: 40%;
+    transform: translateY(-20%);
+}
+
+.title {
+    font-size: 5rem;
+    font-family: 'Arial', sans-serif;
+    color: #fff;
+    margin-bottom: 10px;
+    display: inline-block;
+
+    &::after{
+        content: '';
+        display: block;
+        height: 10px;
+        width: 100%;
+        background: rgb(63,97,160);
+        background: linear-gradient(90deg, rgba(63,97,160,1) 0%, rgba(96,145,235,1) 100%);
+    }
+}
+
+.subtitle {
+    font-size: 2rem;
+    font-family: 'Arial', sans-serif;
+    color: #fff;
+    left: 30%;
+    margin-top: 0;
+}
+
+.content {
+display: flex;
+justify-content: center;
+align-items: center;
+width: 100%;
+max-width: 400px;
+padding: 20px;
+background-color: rgba(255, 255, 255, 0.9);
+border-radius: 8px;
+margin-top: 40px;
+}
+
+.switchText {
+margin-top: 20px;
+text-align: center;
+color: #1a73e8;
+}
+
+.toggleButton {
+border: none;
+background: none;
+color: #1a73e8;
+cursor: pointer;
+font-weight: bold;
+text-decoration: underline;
+margin-left: 5px;
+}
+
+.outletContainer {
+    position: absolute;
+    right: 20%; /* ページの右半分に配置 */
+    top: 25%;
+    transform: translate(0%, 0%);
+  }

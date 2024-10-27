@@ -20,6 +20,7 @@ const totalData = [
   { name: "programming", value: 33 },
   { name: "writing", value: 33 },
   { name: "other", value: 1 },
+  { name: "unko", value: 1}
 ];
 
 

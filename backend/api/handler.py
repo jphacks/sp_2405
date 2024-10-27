@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 import base64
 import re
@@ -212,18 +213,29 @@ def search_rooms(param: str = None, tag: str = None):
     ]
 
     return data
-def create_room(title: str, description: str, start_at: str, cycle_num: int):
+def create_room(title: str, description: str, start_at: datetime, cycle_num: int, tag: str):
+    if tag:
+        tag_id = session.query(TagInfo.tag_id).filter(TagInfo.name == tag).scalar()
+    else:
+        tag_id = None
+
+    assert isinstance(title, str) and isinstance(description, str) and isinstance(start_at, datetime) and isinstance(cycle_num, int) and isinstance(tag, str)
+
+    room_id = str(ULID())
     room = RoomInfo(
-        room_id=ULID(),
+        room_id=room_id,
         title=title,
         description=description,
-        start_at=start_at,
+        start_at=start_at.isoformat(),
         cycle_num=cycle_num,
         cycle_current=0,
-        is_active=True
+        is_active=True,
+        tag_id=tag_id
     )
     session.add(room)
     session.commit()
+
+    return room_id
 
 def get_user_info(user_id: str):
     user = session.query(UserData).filter(UserData.user_id == user_id).one()

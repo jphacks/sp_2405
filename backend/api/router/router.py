@@ -1,12 +1,14 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request, Response, status
 from fastapi.responses import JSONResponse
 
 from api.router.auth_router import auth_router
 import api.handler as handler
-from api.schemas.schema import RoomConditions, CreateRoomCred, SaveProgressCred
+from api.schemas.schema import RoomConditions, CreateRoomCred
+from api.router.ws_router import ws_router
 
 router = APIRouter(prefix='/api')
 router.include_router(auth_router)
+router.include_router(ws_router)
 
 @router.post(path="/users")
 async def create_user(user_name: str):
@@ -25,18 +27,20 @@ def search_rooms(data: RoomConditions):
     return {"data": rooms}
 
 @router.post(path="/create_room")
-async def create_room(data: CreateRoomCred):
+async def create_room(res: Response, data: CreateRoomCred):
     if data.title == '':
         return JSONResponse(content={'detail': 'Title is required'}, status_code=400)
-    if data.description == '':
-        return JSONResponse(content={'detail': 'Description is required'}, status_code=400)
+    # if data.description == '':
+    #     return JSONResponse(content={'detail': 'Description is required'}, status_code=400)
     if data.start_at == '':
         return JSONResponse(content={'detail': 'Start time is required'}, status_code=400)
     if data.cycle_num == '':
         return JSONResponse(content={'detail': 'Cycle number is required'}, status_code=400)
 
-    handler.create_room(data.title, data.description, data.start_at, data.cycle_num)
-    return JSONResponse(content="Creation of Room Successful", status_code=200)
+    room_id = handler.create_room(data.title, data.description, data.start_at, data.cycle_num, data.tag)
+    res.set_cookie('ROOM_ID', room_id)
+
+    return JSONResponse(content="Creation of Room Successful", status_code=status.HTTP_200_OK)
 
 @router.get(path="/get_user")
 async def get_user(user_id: str):
@@ -44,11 +48,3 @@ async def get_user(user_id: str):
         content={'data': handler.user_data},
         status_code=200
     )
-
-@router.post(path="/save_progress")
-async def save_progress(data: SaveProgressCred):
-    is_valid, error = handler.save_progress(data.user_id, data.start, data.progress_eval, data.progress_comment, data.room_id)
-    if not is_valid:
-        return JSONResponse(content={'detail': error}, status_code=400)
-
-    return JSONResponse(content={'detail': "Saving progress Successful"}, status_code=200)

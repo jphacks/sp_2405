@@ -64,6 +64,11 @@
 }
 
 .roomList {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+
   &Link {
     padding: 0;
     margin: 0;
@@ -137,4 +142,18 @@
       text-align: left;
     }
   }
+}
+
+.createButton{
+  position: absolute !important;
+  min-width: 0 !important;
+  min-height: 0;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50% !important;
+
+  padding: 0 !important;
+  z-index: 1;
+  right: 20px;
+  bottom: 20px;
 }

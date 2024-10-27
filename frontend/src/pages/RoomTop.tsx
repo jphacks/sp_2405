@@ -13,7 +13,11 @@ const RoomData = {
   roomMembers: 5,
   roomMembersName: ["misaizu", "Uuekun", "kazuki", "yamada", "suzuki"],
   roomMembersIcon: ["A.png", "B.png", "C.png", "D.png", "E.png"],
+<<<<<<< HEAD
   roomStartTime: "2024/10/27 11:25:50", // 手動で設定
+=======
+  roomStartTime: "2024/10/27 10:04:50", // 手動で設定
+>>>>>>> d5bafa5780ff4efe39ff17bd416721123970452f
   roomCycles: 3,
   userData: [
     {

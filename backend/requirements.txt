@@ -5,7 +5,12 @@ fastapi==0.115.3
 greenlet==3.1.1
 h11==0.14.0
 idna==3.10
+marshmallow==3.22.0
+marshmallow-sqlalchemy==1.1.0
 mysqlclient==2.1.1
+numpy==2.1.2
+opencv-python==4.10.0.84
+packaging==24.1
 pydantic==2.9.2
 pydantic_core==2.23.4
 python-ulid==3.0.0
@@ -14,4 +19,3 @@ SQLAlchemy==2.0.36
 starlette==0.41.0
 typing_extensions==4.12.2
 uvicorn==0.32.0
-marshmallow==3.22.0

@@ -25,8 +25,6 @@ const FindRoom = () => {
 
   const navigate = useNavigate();
 
-  const navigate = useNavigate();
-
   const convertTime = (time: Date) => {
     return time.toLocaleString("ja");
   };
@@ -79,11 +77,6 @@ const FindRoom = () => {
     Cookies.set("ROOM_ID", room_id, { expires: 10 });
     navigate("/home/room");
   };
-
-  const handleRoomEnter = (room_id: string) => {
-    Cookies.set('ROOM_ID', room_id, {expires: 10});
-    navigate('/home/room');
-  }
 
   return (
     <>

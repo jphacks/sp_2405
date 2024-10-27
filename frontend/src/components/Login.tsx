@@ -1,15 +1,41 @@
 import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Box, Button, FormControl, TextField, Typography, Divider } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { createHash } from 'crypto';
 import { grey } from '@mui/material/colors';
 import styles from '../css/components/login.module.scss';
+import axios from 'axios';
+
+type LoginCred = {
+  email: string,
+  password: string,
+}
 
 const Login = () => {
   const { handleSubmit, control, formState: { errors } } = useForm();
+  const navigate = useNavigate();
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (raw: LoginCred) => {
+    const hashBuffer = await window.crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(raw.password)
+    );
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    const data = {
+      username: raw.email,
+      password: hashHex,
+    }
+
+    const res = await axios.post('http://localhost:8000/api/auth/login', data, {withCredentials: true})
+    // console.log(res.data);
+
+    navigate('/home/find_room');
+
   };
 
   return (

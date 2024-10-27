@@ -268,3 +268,36 @@ def save_progress(user_id: str, start: str, progress_eval: int, progress_comment
 def verify_room(room_id: str):
     room = session.query(RoomInfo).filter(RoomInfo.room_id == room_id).first()
     return bool(room)
+
+
+#類似度を測り数字を返す、高い方が類似度が高い
+# api/handler.py に追加
+def check_similarity(comment: str, room_id: str) -> int:
+    room_comments = session.execute(
+        select(ProgressInfo.progress_comment)
+        .where(
+            ProgressInfo.room_id == room_id,
+            ProgressInfo.progress_comment.isnot(None)
+        )
+    ).scalars().all()
+
+    if not room_comments:
+        return 0
+
+    endpoint = "https://labs.goo.ne.jp/api/textpair"
+    app_id = "9b1fd0d516483e5c737c0e3fa26d8530a2a403c0071120822dc53e9b3bde236c"
+
+    max_similarity = 0
+    for prev_comment in room_comments:
+        try:
+            response = requests.post(endpoint, json={
+                "app_id": app_id,
+                "text1": comment,
+                "text2": prev_comment
+            })
+            score = response.json()["score"]
+            max_similarity = max(max_similarity, score)
+        except:
+            continue
+
+    return min(5, int(max_similarity * 5) + 1)

@@ -45,72 +45,23 @@ AI機能による個別最適化された学習支援
 * 直感的なUI/UXデザイン
 
 ## 開発技術
-### 活用した技術
-#### API・データ
-ULID (Universally Unique Lexicographically Sortable Identifier)
-OpenCV (cv2)
-Base64エンコーディング
-
-#### フレームワーク・ライブラリ・モジュール
-バックエンド
-
-FastAPI
-SQLAlchemy
-Marshmallow
-Marshmallow-SQLAlchemy
-Pathlib
-datetime
-
-
+### フレームワーク・ライブラリ・モジュール
 フロントエンド
 
-React.js
-Material-UI (@mui/material)
-Recharts (データ可視化)
-SCSS/CSS Modules
+- React
+- TypeScript
+- Material UI
 
+バックエンド
+
+- FastAPI
 
 データベース
 
-SQLAlchemy ORM
-SQLAlchemy Core
-sessionmaker
+MySQL
 
-
-ミドルウェア
-
-CORS (Cross-Origin Resource Sharing)
-
-#### デバイス
+### デバイス
 クロスプラットフォーム対応
 
 Webブラウザ対応 (Chrome, Firefox, Safari)
-レスポンシブデザイン対応 
-
-### 独自技術
-#### ハッカソンで開発した独自機能・技術
-
-FastAPIとReactを組み合わせたリアルタイムデータ同期システム
-
-リンク
-
-
-カスタムルーティングシステム
-
-バックエンドルーティング設計
-CORSミドルウェア統合
-エラーハンドリング実装
-
-
-データモデリングとスキーマ設計
-
-SQLAlchemyを使用した効率的なORM実装
-Marshmallowによるデータバリデーション
-ULIDを活用した一意識別子システム
-
-
-UIコンポーネント設計
-
-Material-UIとRechartsを組み合わせたデータ可視化
-SCSSモジュールによるスタイリング管理
-レスポンシブデザインの実装git 
+~~レスポンシブデザイン対応~~ 

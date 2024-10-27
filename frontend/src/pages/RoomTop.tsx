@@ -13,7 +13,7 @@ const RoomData = {
   roomMembers: 5,
   roomMembersName: ["misaizu", "Uuekun", "kazuki", "yamada", "suzuki"],
   roomMembersIcon: ["A.png", "B.png", "C.png", "D.png", "E.png"],
-  roomStartTime: "2024/10/27 10:04:50", // 手動で設定
+  roomStartTime: "2024/10/27 12:13:50", // 手動で設定
   roomCycles: 3,
   userData: [
     {
@@ -47,7 +47,7 @@ const RoomTop: React.FC = () => {
   const [isButtonPressed, setIsButtonPressed] = useState<boolean>(false); // ページ2でボタンが押されたか
 
   const focusDuration = 15; // テスト用: 集中時間（秒）
-  const restDuration = 5; // テスト用: 休憩時間（秒）
+  const restDuration = 7; // テスト用: 休憩時間（秒）
   const totalCycleTime = focusDuration + restDuration; // 各サイクルの総時間（秒）
 
   // roomStartTimeをDateオブジェクトに変換
@@ -82,6 +82,7 @@ const RoomTop: React.FC = () => {
     if (cycleTime < focusDuration) {
       // ページ1: 集中時間
       setCurrentPage(1);
+      setIsButtonPressed(false);
       setRemainingTime(focusDuration - cycleTime);
     } else {
       // 休憩時間
@@ -117,6 +118,10 @@ const RoomTop: React.FC = () => {
     const seconds = timeInSeconds % 60;
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
+
+  // ページ2のステート
+  const [rating, setRating] = useState<number>(5); // 進捗度合い
+  const [comment, setComment] = useState<string>(''); // 進捗コメント
 
   // ページ0の内容
   const renderPage0 = () => (
@@ -250,6 +255,119 @@ const RoomTop: React.FC = () => {
     </div>
   );
 
+  const renderPage2 = () => (
+    <div className={styles.main} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '20px' }}>
+      <h2 className={styles.subtitle} style={{ fontSize: '2em', marginBottom: '20px' }}>お疲れさまでした！</h2>
+      <p className={styles.description} style={{ fontSize: '1.2em', marginBottom: '40px' }}>進捗の評価・やったことをコメントしてみましょう！</p>
+
+      <div className={styles.ratingSection} style={{ width: '80%', maxWidth: '600px', marginBottom: '40px' }}>
+        <h2 htmlFor="rating" className={styles.label} style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', fontSize: '1.3em' }}>進捗</h2>
+
+        {/* スライダーの上に評価ラベル */}
+        <div className={styles.ratingLabels} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1em', marginBottom: '10px' }}>
+          <span>はかどらなかった...</span>
+          <span>はかどった！</span>
+        </div>
+
+        {/* スライダー本体 */}
+        <input
+          type="range"
+          id="rating"
+          name="rating"
+          min="0"
+          max="10"
+          value={rating}
+          onChange={(e) => setRating(Number(e.target.value))}
+          className={styles.slider}
+          style={{ width: '100%', marginBottom: '20px' }}
+        />
+
+        {/* 0, 5, 10 の下に線と数字 */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', width: '100%' }}>
+          {[0, 5, 10].map((value) => (
+            <div key={value} style={{ textAlign: 'center', position: 'relative' }}>
+              <div style={{ width: '1px', height: '10px', backgroundColor: '#000', margin: '0 auto' }}></div>
+              <span style={{ fontSize: '0.9em', marginTop: '5px' }}>{value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.commentSection} style={{ width: '80%', maxWidth: '600px', marginBottom: '40px' }}>
+        <h2 htmlFor="comment" className={styles.label} style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', fontSize: '1.3em' }}>進捗コメント</h2>
+        <textarea
+          id="comment"
+          name="comment"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          className={styles.textarea}
+          style={{ width: '100%', height: '150px', padding: '10px', fontSize: '1em', borderRadius: '8px', border: '1px solid #ccc' }}
+        />
+      </div>
+
+      <button
+        className={styles.submitButton}
+        onClick={() => {
+          // ここでbackendに送信する処理を行う
+          // fetch('/api/submit', {
+          //   method: 'POST',
+          //   headers: {
+          //     'Content-Type': 'application/json',
+          //   },
+          //   body: JSON.stringify({ rating, comment }),
+          // })
+          //   .then(response => response.json())
+          //   .then(data => console.log(data))
+          //   .catch(error => console.error('Error:', error));
+
+          // ボタン押下後、Page3に遷移する
+          setIsButtonPressed(true);
+        }}
+        style={{ backgroundColor: '#4A90E2', color: 'white', fontSize: '1.2em', padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer' }}
+      >
+        送信
+      </button>
+    </div>
+  );
+
+  const renderPage3 = () => (
+    <div className={styles.main}>
+        <header className={styles.header}>
+          <Link to="/" className={styles.exitButton}>
+            <div className={styles.logoutIconContainer}>
+              <LogoutIcon />
+            </div>
+          </Link>
+          <div className={styles.cycleInfo}>
+            <span>残り {remainingCycles - 1} サイクル</span>
+            <span>次のサイクルまで {formatTime(remainingTime)}</span>
+          </div>
+        </header>
+        <h2 className={styles.subtitle}>{RoomData.roomName}</h2>
+        <p>残り時間: {formatTime(remainingTime)}</p>
+        <div className={styles.cardContainer}>
+          {RoomData.userData
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+            .map((user, index) => (
+              <div key={index} className={styles.card}>
+                <p className={styles.username}>
+                  <img src={user.userIcon} alt={user.username} className={styles.userIcon} />
+                  {user.username}
+                </p>
+                <p className={styles.cycle}>Cycle {user.cycle}</p>
+                <p className={styles.time}>{user.date}</p>
+                <div className={styles.rating}>
+                  {[...Array(10)].map((_, i) => (
+                    <span key={i} className={i < user.rating ? styles.full : styles.empty}>●</span>
+                  ))}
+                </div>
+                <p className={styles.comment}>{user.comment}</p>
+                <p className={styles.likes}>❤️ {user.likes}</p>
+              </div>
+            ))}
+        </div>
+      </div>
+  );
 
   // ページのレンダリング
   const renderPage = () => {
@@ -259,31 +377,9 @@ const RoomTop: React.FC = () => {
       case 1:
         return renderPage1();
       case 2:
-        return (
-          <div className={styles.main}>
-            <h2>ページ2: 休憩開始</h2>
-            <p className={`${styles.timer} ${styles.monospace}`}>残り時間: {formatTime(remainingTime)}</p>
-            <button onClick={() => setIsButtonPressed(true)}>送信</button>
-            {/* ページ2の内容 */}
-          </div>
-        );
+        return renderPage2();
       case 3:
-        return (
-          <div className={styles.main}>
-            <header className={styles.header}>
-              <div className={styles.cycleInfo}>
-                <span>残り {remainingCycles - 1} サイクル</span>
-                <span>次のサイクルまで {formatTime(remainingTime)}</span>
-              </div>
-            </header>
-            <h2 className={styles.subtitle}>{RoomData.roomName}</h2>
-            <p className={`${styles.timer} ${styles.monospace}`}>残り時間: {formatTime(remainingTime)}</p>
-            {/* ページ3の内容 */}
-            <div className={styles.logoutIconContainer}>
-              <LogoutIcon/>
-            </div>
-          </div>
-        );
+        return renderPage3();
       default:
         return null;
     }

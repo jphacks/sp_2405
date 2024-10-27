@@ -8,7 +8,7 @@ import axios from "axios";
 import styles from '../css/components/register.module.scss';
 
 const Register = () => {
-  const url = 'http://localhost:8000/register';
+  const url = 'http://localhost:8000/api/auth/register';
   const navigate = useNavigate();
 
   type Inputs = {
@@ -22,7 +22,7 @@ const Register = () => {
       const response = await axios.post(url, data);
       console.log(response.data);
       alert("登録が成功しました。ログインしてください。");
-      navigate("/login");
+      navigate("/auth/login");
     } catch (error) {
       console.error("登録エラー:", error);
     }

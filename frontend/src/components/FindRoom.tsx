@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import style from "../css/style.module.scss";
-import findRoom from "../css/components/find_room.module.scss";
-import { TextField, Button } from "@mui/material";
-import { Search, Add } from "@mui/icons-material";
-import axios from "axios";
-import CreateRoom from "./CreateRoom";
+import React, { useEffect, useState } from 'react'
+import style from '../css/style.module.scss'
+import findRoom from '../css/components/find_room.module.scss'
+import { TextField, Button } from '@mui/material'
+import { Search, Add } from '@mui/icons-material'
+import axios from 'axios'
+import CreateRoom from './CreateRoom'
 import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom'
 
 const FindRoom = () => {
   type RoomType = {
@@ -22,6 +22,8 @@ const FindRoom = () => {
     img: string;
     user_imgs: string[];
   };
+
+  const navigate = useNavigate();
 
   const navigate = useNavigate();
 
@@ -77,6 +79,11 @@ const FindRoom = () => {
     Cookies.set("ROOM_ID", room_id, { expires: 10 });
     navigate("/home/room");
   };
+
+  const handleRoomEnter = (room_id: string) => {
+    Cookies.set('ROOM_ID', room_id, {expires: 10});
+    navigate('/home/room');
+  }
 
   return (
     <>

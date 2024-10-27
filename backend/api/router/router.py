@@ -1,9 +1,11 @@
+from datetime import datetime as dt, timedelta as td, timezone as tz
+
 from fastapi import APIRouter, Request, Response, status
 from fastapi.responses import JSONResponse
 
 from api.router.auth_router import auth_router
 import api.handler as handler
-from api.schemas.schema import RoomConditions, CreateRoomCred
+from api.schemas.schema import RoomConditions, CreateRoomCred, SaveProgress
 from api.router.ws_router import ws_router
 
 router = APIRouter(prefix='/api')
@@ -38,9 +40,9 @@ async def create_room(res: Response, data: CreateRoomCred):
         return JSONResponse(content={'detail': 'Cycle number is required'}, status_code=400)
 
     room_id = handler.create_room(data.title, data.description, data.start_at, data.cycle_num, data.tag)
-    res.set_cookie('ROOM_ID', room_id)
+    res.set_cookie('ROOM_ID', room_id, expires=dt.now(tz(td(0), 'UTC'))+td(days=10), httponly=True, secure=False)
 
-    return JSONResponse(content="Creation of Room Successful", status_code=status.HTTP_200_OK)
+    return JSONResponse(content=f"Creation of Room Successful with room_id of {room_id}", status_code=status.HTTP_200_OK)
 
 @router.get(path="/get_user")
 async def get_user(user_id: str):
@@ -48,3 +50,13 @@ async def get_user(user_id: str):
         content={'data': handler.user_data},
         status_code=200
     )
+
+@router.get(path="/get_room")
+async def get_room(req: Request):
+    room_id = req.cookies.get('ROOM_ID', '')
+    # print(room_id)
+    data = handler.get_room(room_id)
+    if not data:
+        return JSONResponse({'detail': 'room is not found'}, status_code=status.HTTP_404_NOT_FOUND)
+
+    return JSONResponse(data, status_code=status.HTTP_200_OK)

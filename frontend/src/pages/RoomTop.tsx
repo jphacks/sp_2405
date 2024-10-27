@@ -149,6 +149,18 @@ const RoomTop: React.FC = () => {
   const fetchRoom = async () => {
     const res = await axios.get('http://localhost:8000/api/get_room', {withCredentials: true})
     console.log(res.data);
+    const raw = res.data;
+    const data: RoomDataType = {
+      title: raw.title,
+      description: raw.description,
+      cycleNum: raw.cycle_num,
+      cycleCurrent: raw.cycle_current,
+      startAt: new Date(raw.start_at),
+      users: [],
+      progress: [],
+    }
+
+    setRoom(data);
 
   }
 

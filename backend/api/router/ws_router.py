@@ -33,7 +33,7 @@ rooms = Room()
 
 @ws_router.websocket(path='/room')
 async def ws_room(ws: WebSocket, user_id: str):
-  print('aaa')
+  # print('aaa')
   room_id = ws.cookies.get('ROOM_ID', '')
 
   room = handler.verify_room(room_id)

@@ -1,6 +1,15 @@
+from string import ascii_letters as alu # ascii_lowercase + ascii_uppercase
+from string import ascii_lowercase as al # abcdefghijklmnopqrstuvwxyz
+from string import ascii_uppercase as au # ABCDEFGHIJKLMNOPQRSTUVWXYZ
+from string import digits # '0123456789'
+from string import hexdigits # '0123456789abcdefABCDEF'
+from string import octdigits # '01234567'
+from string import punctuation # !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~.
+from datetime import datetime as dt
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from handler import RoomInfo, TagInfo, RoomTag
+from handler import ProgressInfo, ReactionInfo, RoomInfo, TagInfo, RoomTag
 from ulid import ULID
 
 
@@ -9,35 +18,13 @@ engine = create_engine('mysql://pomodoro:pomodoro@localhost:3306/pomodoro')
 SessionClass = sessionmaker(engine)
 session = SessionClass()
 
-# 仮のデータを作成
-def create_sample_data():
-    # 部屋情報の作成
-    room1 = RoomInfo(room_id=str(ULID()), title='あああ', description='Description 1', start_at='2023-06-01T10:00:00', cycle_num=4, cycle_current=5, is_active=True, tag_id='tag1')
-    room2 = RoomInfo(room_id='room2', title='Room 2', description='Description 2', start_at='2023-06-02T14:00:00', cycle_num=3, cycle_current=3, is_active=True, tag_id='tag2')
-    room3 = RoomInfo(room_id='room3', title='Room 3', description='Description 3', start_at='2023-06-03T18:00:00', cycle_num=5, cycle_current=4, is_active=False, tag_id='tag3')
-    session.add_all([room1, room2, room3])
-    session.commit()
+progress1 = ProgressInfo(progress_id='a', user_id='01JB5YQ3BG3G1W5QCMJ2Y9FHK1', start=dt.now(), progress_eval=9, progress_comment='ジョルダン標準形、理解できました！', room_id='01JB5ZC8EC5ZDA5TNMZXDR2TV2')
+progress2 = ProgressInfo(progress_id='b', user_id='01JB5YQ3BG3G1W5QCMJ2Y9FHK1', start=dt.now(), progress_eval=1, progress_comment='ジョルダン標準形、なんもわからん', room_id='01JB5ZC8EC5ZDA5TNMZXDR2TV2')
+progress3 = ProgressInfo(progress_id='c', user_id='01JB5YQ3BG3G1W5QCMJ2Y9FHK1', start=dt.now(), progress_eval=9, progress_comment='ばなな', room_id='01JB5ZC8EC5ZDA5TNMZXDR2TV2')
 
-    # タグ情報の作成
-    # tag1 = TagInfo(tag_id='tag1', name='Tag 1')
-    # tag2 = TagInfo(tag_id='tag2', name='Tag 2')
-    # tag3 = TagInfo(tag_id='tag3', name='Tag 3')
-    # session.add_all([tag1, tag2, tag3])
-    # session.commit()
+session.add_all([progress1, progress2, progress3])
+session.commit()
 
-    # 部屋とタグの関連付け
-    # room_tag1 = RoomTag(room_id='room1', tag_id='tag1')
-    # # room_tag2 = RoomTag(room_id='room1', tag_id='tag2')
-    # room_tag3 = RoomTag(room_id='room2', tag_id='tag2')
-    # room_tag4 = RoomTag(room_id='room3', tag_id='tag3')
-    # session.add_all([room_tag1, room_tag3, room_tag4])
-
-    # session.commit()
-
-# サンプルデータの作成
-# create_sample_data()
-from datetime import timedelta as td, datetime as dt
-
-a = dt.now()+td(days=2)
-print(a)
-print(type(a))
+reactions = [ReactionInfo(user_id='01JB5YQ3BG3G1W5QCMJ2Y9FHK1', progress_id=al[i]) for i in range(3)]
+session.add_all(reactions)
+session.commit()

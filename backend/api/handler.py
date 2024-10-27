@@ -6,9 +6,10 @@ import hashlib
 
 from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer, ForeignKey, select, or_
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker, joinedload
+from sqlalchemy.orm import relationship, sessionmaker, joinedload, selectinload
 from marshmallow import Schema, fields
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow_sqlalchemy.fields import Nested
 from ulid import ULID
 import cv2
 
@@ -41,12 +42,31 @@ class ProgressInfo(Base):
     progress_eval = Column(Integer)
     progress_comment = Column(String(256))
     room_id = Column(String(26), ForeignKey('room_info.room_id', ondelete='CASCADE'), nullable=False)
+    reaction = relationship('ReactionInfo', back_populates='progress')
 
 # リアクション情報(reaction_info)テーブルの定義
 class ReactionInfo(Base):
     __tablename__ = 'reaction_info'
-    user_id = Column(String(26), ForeignKey('userdata.user_id', ondelete='CASCADE'), nullable=False ,primary_key=True)
+    user_id = Column(String(26), ForeignKey('userdata.user_id', ondelete='CASCADE'), nullable=False, primary_key=True)
     progress_id = Column(String(26), ForeignKey('progress_info.progress_id', ondelete='CASCADE'), nullable=False, primary_key=True)
+    progress = relationship('ProgressInfo', back_populates='reaction')
+
+
+# ReactionInfoスキーマ
+class ReactionInfoSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = ReactionInfo
+        load_instance = True
+        include_fk = True  # 外部キーを含める
+
+# ProgressInfoスキーマ
+class ProgressInfoSchema(SQLAlchemyAutoSchema):
+    reactions = Nested(ReactionInfoSchema, many=True)  # 多対1のリレーションを設定
+
+    class Meta:
+        model = ProgressInfo
+        load_instance = True
+        include_fk = True  # 外部キーを含める
 
 # 部屋情報(room_info)テーブルの定義
 class RoomInfo(Base):
@@ -282,5 +302,11 @@ def verify_room(room_id: str):
 def get_room(room_id: str):
     room = session.query(RoomInfo).filter(RoomInfo.room_id == room_id).options(joinedload(RoomInfo.tag)).first()
     data = RoomInfoSchema().dump(room)
+
+    progress = session.query(ProgressInfo).filter(ProgressInfo.room_id == room_id).options(selectinload(ProgressInfo.reaction)).all()
+    progress_info_schema = ProgressInfoSchema(many=True)
+    serialized_data = progress_info_schema.dump(progress)
+    print(serialized_data)
+
 
     return data

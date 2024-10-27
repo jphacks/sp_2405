@@ -7,13 +7,13 @@ import LogoutIcon from '@mui/icons-material/Logout';
 
 // RoomDataを手動で設定
 const RoomData = {
-  roomName: "数学を頑張る部屋",
+  roomName: "ジョルダン標準形を覚える会",
   roomOwner: "misaizu",
   roomIcon: "frontend/src/components/test_img/Uuekun.png",
   roomMembers: 5,
   roomMembersName: ["misaizu", "Uuekun", "kazuki", "yamada", "suzuki"],
   roomMembersIcon: ["A.png", "B.png", "C.png", "D.png", "E.png"],
-  roomStartTime: "2024/10/27 14:02:50", // 手動で設定
+  roomStartTime: "2024/10/27 16:12:45", // 手動で設定
   roomCycles: 3,
   userData: [
     {

@@ -1,28 +1,32 @@
-import React, { useEffect, useState } from 'react'
-import style from '../css/style.module.scss'
-import findRoom from '../css/components/find_room.module.scss'
-import { TextField, Button } from '@mui/material'
-import { Search, Add } from '@mui/icons-material'
-import axios from 'axios'
-import CreateRoom from './CreateRoom'
+import React, { useEffect, useState } from "react";
+import style from "../css/style.module.scss";
+import findRoom from "../css/components/find_room.module.scss";
+import { TextField, Button } from "@mui/material";
+import { Search, Add } from "@mui/icons-material";
+import axios from "axios";
+import CreateRoom from "./CreateRoom";
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 const FindRoom = () => {
   type RoomType = {
-    room_id: string,
-    title: string,
-    description: string,
-    start_at: Date,
-    cycle_num: number,
-    cycle_current: number,
-    tag_name: string,
-    tag_color: string,
-    tag_id: string,
-    img: string,
-    user_imgs: string[],
-  }
+    room_id: string;
+    title: string;
+    description: string;
+    start_at: Date;
+    cycle_num: number;
+    cycle_current: number;
+    tag_name: string;
+    tag_color: string;
+    tag_id: string;
+    img: string;
+    user_imgs: string[];
+  };
+
+  const navigate = useNavigate();
 
   const convertTime = (time: Date) => {
-    return time.toLocaleString('ja');
+    return time.toLocaleString("ja");
   };
 
   const [rooms, setRooms] = useState<RoomType[]>([]);
@@ -34,25 +38,28 @@ const FindRoom = () => {
   const tags = ["Study", "Work", "Programming", "Writing"];
 
   const handleTagClick = (tag: string) => {
-    if(tag === selectedTag) setSelectedTag(null);
+    if (tag === selectedTag) setSelectedTag(null);
     else setSelectedTag(tag);
   };
 
-  const url = 'http://localhost:8000/api/';
+  const url = "http://localhost:8000/api/";
 
   const handleSearch = async () => {
-    const res = await axios.post(url+'search_rooms', {param: searchQuery, tag: selectedTag}, {withCredentials: true});
-  }
+    const res = await axios.post(
+      url + "search_rooms",
+      { param: searchQuery, tag: selectedTag },
+      { withCredentials: true }
+    );
+  };
 
   const fetchRooms = async () => {
-    const res = await axios.get(url+'rooms', {withCredentials: true});
+    const res = await axios.get(url + "rooms", { withCredentials: true });
     // console.log(res.data);
     setRooms(res.data.data as RoomType[]);
-  }
+  };
 
   useEffect(() => {
-    fetchRooms()
-
+    fetchRooms();
   }, []);
 
   const [open, setOpen] = useState(false);
@@ -64,7 +71,12 @@ const FindRoom = () => {
 
   const handleClick = (e) => {
     setOpen(true);
-  }
+  };
+
+  const handleRoomEnter = (room_id: string) => {
+    Cookies.set("ROOM_ID", room_id, { expires: 10 });
+    navigate("/home/room");
+  };
 
   return (
     <>
@@ -119,15 +131,21 @@ const FindRoom = () => {
                 type="button"
                 // width='100%'
                 className={findRoom.roomListLink}
+                onClick={() => handleRoomEnter(room.room_id)}
               >
                 <div className={findRoom.roomListItemImg}>
-                  <img src={room.img == null ? '/sample_room.JPG' : room.img} alt="" />
+                  <img
+                    src={room.img == null ? "/sample_room.JPG" : room.img}
+                    alt=""
+                  />
                 </div>
                 <div className={findRoom.roomListItemContent}>
                   <h1 className={findRoom.roomListItemContentTitle}>
                     {room.title}
                   </h1>
-                  <p className={findRoom.roomListItemContentTag}>{room.tag_name}</p>
+                  <p className={findRoom.roomListItemContentTag}>
+                    {room.tag_name}
+                  </p>
                   <p className={findRoom.roomListItemContentNormal}>
                     {convertTime(room.start_at)}開始
                   </p>
@@ -161,7 +179,7 @@ const FindRoom = () => {
           ))}
         </ul>
         <Button
-          variant='contained'
+          variant="contained"
           className={findRoom.createButton}
           onClick={handleClick}
         >
@@ -171,6 +189,6 @@ const FindRoom = () => {
       <CreateRoom open={open} onClose={onClose} />
     </>
   );
-}
+};
 
-export default FindRoom
+export default FindRoom;

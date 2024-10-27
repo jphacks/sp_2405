@@ -15,7 +15,7 @@ const Welcome = () => {
     <div className={welcome.wrapper}>
       <div className={welcome.box}>
         <div className={welcome.header}>
-          <h1 className={welcome.title}>プロダクト名</h1>
+          <h1 className={welcome.title}>ぽもとも</h1>
           <p className={welcome.subtitle}>みんなで一緒にポモドーロ法、やってみませんか？</p>
         </div>
 

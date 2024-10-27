@@ -46,12 +46,23 @@ type UserType = {
 }
 
 type ProgressType = {
+  progressId: string,
   user: UserType,
   cycle: number,
-  duration: string,
+  time: Date,
   rating: number,
   comment: string,
   likes: number,
+}
+
+type RawProgressType = {
+  user_id: string,
+  start: string,
+  progress_eval: number,
+  progress_comment: string,
+  progress_id: string,
+  room_id: string,
+  reaction: string[],
 }
 
 type RoomDataType = {
@@ -62,6 +73,7 @@ type RoomDataType = {
   startAt: Date,
   users: UserType[],
   progress: ProgressType[],
+  roomId: string,
 }
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -73,10 +85,19 @@ const RoomTop: React.FC = () => {
   const [remainingCycles, setRemainingCycles] = useState<number>(0);
   const [isButtonPressed, setIsButtonPressed] = useState<boolean>(false); // ページ2でボタンが押されたか
 
-  const [room, setRoom] = useState<RoomDataType>({} as RoomDataType);
+  const [room, setRoom] = useState<RoomDataType>({
+    roomId: '',
+    title: '',
+    description: '',
+    cycleNum: 99,
+    cycleCurrent: 0,
+    startAt: new Date(Date.now()),
+    users: [],
+    progress: [],
+  });
 
-  const focusDuration = 10500; // テスト用: 集中時間（秒）
-  const restDuration = 7; // テスト用: 休憩時間（秒）
+  const focusDuration = 60; // テスト用: 集中時間（秒）
+  const restDuration = 60; // テスト用: 休憩時間（秒）
   const totalCycleTime = focusDuration + restDuration; // 各サイクルの総時間（秒）
 
   // roomStartTimeをDateオブジェクトに変換
@@ -86,6 +107,9 @@ const RoomTop: React.FC = () => {
   // 現在の状態を計算する関数
   const calculateState = useCallback(() => {
     const now = Date.now();
+    if(roomStartTimestamp !== room.startAt.getTime()){
+      setRoomStartTimestamp(room.startAt.getTime());
+    }
 
     if (now < roomStartTimestamp) {
       // ページ0: 開始待機
@@ -96,11 +120,14 @@ const RoomTop: React.FC = () => {
     }
 
     const elapsedTime = Math.floor((now - roomStartTimestamp) / 1000); // 経過秒数
+    // console.log(room.startAt.getTime());
+    // console.log(roomStartTimestamp);
+
     const totalTime = room.cycleNum * totalCycleTime;
 
     if (elapsedTime >= totalTime) {
       // 全サイクル終了
-      navigate('/');
+      navigate("/");
       return;
     }
 
@@ -129,7 +156,7 @@ const RoomTop: React.FC = () => {
         setRemainingTime(remainingRestTime);
       }
     }
-  }, [isButtonPressed, navigate]);
+  }, [isButtonPressed, navigate, room]);
 
   // タイマーを設定
   useEffect(() => {
@@ -148,20 +175,38 @@ const RoomTop: React.FC = () => {
 
   const fetchRoom = async () => {
     const res = await axios.get('http://localhost:8000/api/get_room', {withCredentials: true})
-    console.log(res.data);
-    const raw = res.data;
+    // console.log(res.data);
+    const raw_room = res.data.room;
+    const raw_progress: RawProgressType[] = res.data.progress;
+    // console.log(raw_progress);
+
     const data: RoomDataType = {
-      title: raw.title,
-      description: raw.description,
-      cycleNum: raw.cycle_num,
-      cycleCurrent: raw.cycle_current,
-      startAt: new Date(raw.start_at),
+      roomId: raw_room.room_id,
+      title: raw_room.title,
+      description: raw_room.description,
+      cycleNum: raw_room.cycle_num,
+      cycleCurrent: raw_room.cycle_current,
+      startAt: new Date(raw_room.start_at),
       users: [],
-      progress: [],
+      progress: raw_progress.map((elem: RawProgressType): ProgressType => {
+        return {
+          user: {
+            username: 'misaizu',
+            img: '/sample_avatar.png',
+          },
+          progressId: elem.progress_id,
+          rating: elem.progress_eval,
+          comment: elem.progress_comment,
+          likes: elem.reaction.length,
+          cycle: 1,
+          time: new Date(Date.now()),
+        }
+      }),
     }
 
     setRoom(data);
 
+    // console.log('ppp');
   }
 
   useEffect(() => {
@@ -171,12 +216,17 @@ const RoomTop: React.FC = () => {
     );
 
     socketRef.current = ws;
+    ws.onerror = (error) => {
+      console.error("WebSocket接続エラー:", error);
+      navigate('/')
+    };
     ws.onmessage = (e) => {
       console.log(JSON.parse(e.data));
       // console.log(rows);
     };
 
     fetchRoom();
+    calculateState();
 
     return () => {
 
@@ -395,7 +445,15 @@ const RoomTop: React.FC = () => {
 
       <button
         className={styles.submitButton}
-        onClick={() => {
+        onClick={async () => {
+          const data = {
+            user_id: userData.user_id,
+            start: Date.now(),
+            progress_eval: rating,
+            progress_comment: comment,
+            room_id: room.roomId,
+          }
+          const res = await axios.post('http://localhost:8000/api/ws/save_progress', data, {withCredentials: true})
           // ここでbackendに送信する処理を行う
           // fetch('/api/submit', {
           //   method: 'POST',
@@ -435,22 +493,22 @@ const RoomTop: React.FC = () => {
         <p>残り時間: {formatTime(remainingTime)}</p>
         <div className={styles.cardContainer}>
           {room.progress
-            .sort((p) => new Date(p.date).getTime() - new Date(a.date).getTime())
-            .map((user, index) => (
-              <div key={index} className={styles.card}>
+            // .sort((p) => new Date(p.date).getTime() - new Date(a.date).getTime())
+            .map((elem) => (
+              <div key={elem.progressId} className={styles.card}>
                 <p className={styles.username}>
-                  <img src={user.userIcon} alt={user.username} className={styles.userIcon} />
-                  {user.username}
+                  <img src={elem.user.img} alt={elem.user.username} className={styles.userIcon} />
+                  {elem.user.username}
                 </p>
-                <p className={styles.cycle}>Cycle {user.cycle}</p>
-                <p className={styles.time}>{user.date}</p>
+                <p className={styles.cycle}>Cycle {elem.cycle}</p>
+                <p className={styles.time}>{elem.time.toISOString()}</p>
                 <div className={styles.rating}>
                   {[...Array(10)].map((_, i) => (
-                    <span key={i} className={i < user.rating ? styles.full : styles.empty}>●</span>
+                    <span key={i} className={i < elem.rating ? styles.full : styles.empty}>●</span>
                   ))}
                 </div>
-                <p className={styles.comment}>{user.comment}</p>
-                <p className={styles.likes}>❤️ {user.likes}</p>
+                <p className={styles.comment}>{elem.comment}</p>
+                <p className={styles.likes}>❤️ {elem.likes}</p>
               </div>
             ))}
         </div>
@@ -473,7 +531,11 @@ const RoomTop: React.FC = () => {
     }
   };
 
-  return <div className={styles.main}>{renderPage()}</div>;
+  return (
+    <div className={styles.main}>
+      {renderPage()}
+    </div>
+  );
 };
 
 export default RoomTop;

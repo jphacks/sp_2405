@@ -2,7 +2,8 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl,
 import axios from 'axios';
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 interface FormValues {
   title: string;
@@ -49,6 +50,7 @@ const CreateRoom = ({open, onClose}: ModalProps) => {
 
     const res = await axios.post('http://localhost:8000/api/create_room', data, {withCredentials: true});
     console.log(res.data)
+    // Cookies.set("ROOM_ID", room_id, { expires: 10 });
 
     navigate('/home/room');
   }

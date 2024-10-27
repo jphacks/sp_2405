@@ -1,11 +1,13 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import axios from 'axios';
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 
 interface FormValues {
   title: string;
   description?: string;
-  startTime: string;
+  startAt: string;
   cycleCount: number;
   tag?: string;
 }
@@ -26,15 +28,29 @@ const CreateRoom = ({open, onClose}: ModalProps) => {
     defaultValues: {
       title: "",
       description: "",
-      startTime: "",
+      startAt: "",
       cycleCount: 1,
       tag: "",
     },
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const navigate = useNavigate();
 
+  const onSubmit = async (raw: FormValues) => {
+    console.log(raw);
+
+    const data = {
+      title: raw.title,
+      description: raw.description,
+      start_at: raw.startAt,
+      cycle_num: raw.cycleCount,
+      tag: raw.tag,
+    };
+
+    const res = await axios.post('http://localhost:8000/api/create_room', data, {withCredentials: true});
+    console.log(res.data)
+
+    navigate('/home/room');
   }
 
   return (
@@ -77,7 +93,7 @@ const CreateRoom = ({open, onClose}: ModalProps) => {
           />
 
           <Controller
-            name="startTime"
+            name="startAt"
             control={control}
             rules={{
               required: "開始時刻は必須です",
@@ -98,8 +114,8 @@ const CreateRoom = ({open, onClose}: ModalProps) => {
                 InputLabelProps={{
                   shrink: true,
                 }}
-                error={!!errors.startTime}
-                helperText={errors.startTime?.message}
+                error={!!errors.startAt}
+                helperText={errors.startAt?.message}
                 required
               />
             )}

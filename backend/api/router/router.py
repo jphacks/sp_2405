@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request, Response, status
 from fastapi.responses import JSONResponse
 
 from api.router.auth_router import auth_router
@@ -27,18 +27,20 @@ def search_rooms(data: RoomConditions):
     return {"data": rooms}
 
 @router.post(path="/create_room")
-async def create_room(data: CreateRoomCred):
+async def create_room(res: Response, data: CreateRoomCred):
     if data.title == '':
         return JSONResponse(content={'detail': 'Title is required'}, status_code=400)
-    if data.description == '':
-        return JSONResponse(content={'detail': 'Description is required'}, status_code=400)
+    # if data.description == '':
+    #     return JSONResponse(content={'detail': 'Description is required'}, status_code=400)
     if data.start_at == '':
         return JSONResponse(content={'detail': 'Start time is required'}, status_code=400)
     if data.cycle_num == '':
         return JSONResponse(content={'detail': 'Cycle number is required'}, status_code=400)
 
-    handler.create_room(data.title, data.description, data.start_at, data.cycle_num)
-    return JSONResponse(content="Creation of Room Successful", status_code=200)
+    room_id = handler.create_room(data.title, data.description, data.start_at, data.cycle_num, data.tag)
+    res.set_cookie('ROOM_ID', room_id)
+
+    return JSONResponse(content="Creation of Room Successful", status_code=status.HTTP_200_OK)
 
 @router.get(path="/get_user")
 async def get_user(user_id: str):

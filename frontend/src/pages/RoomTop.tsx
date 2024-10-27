@@ -13,7 +13,7 @@ const RoomData = {
   roomMembers: 5,
   roomMembersName: ["misaizu", "Uuekun", "kazuki", "yamada", "suzuki"],
   roomMembersIcon: ["A.png", "B.png", "C.png", "D.png", "E.png"],
-  roomStartTime: "2024/10/27 14:02:50", // 手動で設定
+  roomStartTime: "2024/10/28 02:43:20", // 手動で設定
   roomCycles: 3,
   userData: [
     {
@@ -46,8 +46,8 @@ const RoomTop: React.FC = () => {
   const [remainingCycles, setRemainingCycles] = useState<number>(RoomData.roomCycles);
   const [isButtonPressed, setIsButtonPressed] = useState<boolean>(false); // ページ2でボタンが押されたか
 
-  const focusDuration = 150; // テスト用: 集中時間（秒）
-  const restDuration = 700000; // テスト用: 休憩時間（秒）
+  const focusDuration = 140; // テスト用: 集中時間（秒）
+  const restDuration = 300; // テスト用: 休憩時間（秒）
   const totalCycleTime = focusDuration + restDuration; // 各サイクルの総時間（秒）
 
   // roomStartTimeをDateオブジェクトに変換

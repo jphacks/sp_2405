@@ -54,4 +54,4 @@ async def get_room(req: Request):
     room_id = req.cookies.get('ROOM_ID', '')
     data = handler.get_room(room_id)
     if not data:
-        return JSONResponse({''})
+        return JSONResponse({'detail': 'room is not found'}, status_code=)

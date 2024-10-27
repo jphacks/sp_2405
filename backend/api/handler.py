@@ -1,3 +1,5 @@
+from pathlib import Path
+import base64
 import re
 
 from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer, ForeignKey, select, or_
@@ -6,8 +8,10 @@ from sqlalchemy.orm import relationship, sessionmaker, joinedload
 from marshmallow import Schema, fields
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from ulid import ULID
+import cv2
 
 
+PUBLIC_PATH = Path(__file__).resolve().parent / 'public'
 # ベースクラスの作成
 Base = declarative_base()
 
@@ -159,10 +163,22 @@ def get_user_from_token(token: str):
 
 def get_all_rooms():
     rooms = session.query(RoomInfo).filter(RoomInfo.is_active == True).options(joinedload(RoomInfo.tag)).all()
-    data = {
-        'data': RoomInfoSchema().dump(rooms, many=True)
-    }
-    return data
+    data = RoomInfoSchema().dump(rooms, many=True)
+
+
+    for i, datum in enumerate(data):
+        if datum['image_path']:
+            img = cv2.imread(PUBLIC_PATH / 'room_images' / datum['image_path'])
+            _, encoded = cv2.imencode('.jpg', img)
+            img_str = base64.b64decode(encoded).decode('ascii')
+            data[i]['img'] = img_str
+            del data[i]['image_path']
+        else:
+            data[i]['img'] = None
+            del data[i]['image_path']
+
+        data[i]['user_imgs'] = []
+    return {'data': data}
 
 
 def search_rooms(param: str = None, tag: str = None):
@@ -235,4 +251,8 @@ def save_progress(user_id: str, start: str, progress_eval: int, progress_comment
     )
     session.add(progress)
     session.commit()
-    return True, []
+    return progress, []
+
+def verify_room(room_id: str):
+    room = session.query(RoomInfo).filter(RoomInfo.room_id == room_id).first()
+    return bool(room)

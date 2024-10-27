@@ -3,10 +3,12 @@ from fastapi.responses import JSONResponse
 
 from api.router.auth_router import auth_router
 import api.handler as handler
-from api.schemas.schema import RoomConditions, CreateRoomCred, SaveProgressCred
+from api.schemas.schema import RoomConditions, CreateRoomCred
+from api.router.ws_router import ws_router
 
 router = APIRouter(prefix='/api')
 router.include_router(auth_router)
+router.include_router(ws_router)
 
 @router.post(path="/users")
 async def create_user(user_name: str):
@@ -44,11 +46,3 @@ async def get_user(user_id: str):
         content={'data': handler.user_data},
         status_code=200
     )
-
-@router.post(path="/save_progress")
-async def save_progress(data: SaveProgressCred):
-    is_valid, error = handler.save_progress(data.user_id, data.start, data.progress_eval, data.progress_comment, data.room_id)
-    if not is_valid:
-        return JSONResponse(content={'detail': error}, status_code=400)
-
-    return JSONResponse(content={'detail': "Saving progress Successful"}, status_code=200)

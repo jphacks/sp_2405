@@ -35,4 +35,9 @@ def create_sample_data():
     # session.commit()
 
 # サンプルデータの作成
-create_sample_data()
+# create_sample_data()
+from datetime import timedelta as td, datetime as dt
+
+a = dt.now()+td(days=2)
+print(a)
+print(type(a))

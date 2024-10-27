@@ -1,8 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import axios from 'axios';
-import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form';
-import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 
 interface FormValues {

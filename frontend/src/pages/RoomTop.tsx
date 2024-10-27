@@ -417,7 +417,7 @@ const RoomTop: React.FC = () => {
       <p className={styles.description} style={{ fontSize: '1.2em', marginBottom: '40px' }}>進捗の評価・やったことをコメントしてみましょう！</p>
 
       <div className={styles.ratingSection} style={{ width: '80%', maxWidth: '600px', marginBottom: '40px' }}>
-        <h2 htmlFor="rating" className={styles.label} style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', fontSize: '1.3em' }}>進捗</h2>
+        <h2 className={styles.label} style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', fontSize: '1.3em' }}>進捗</h2>
 
         {/* スライダーの上に評価ラベル */}
         <div className={styles.ratingLabels} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1em', marginBottom: '10px' }}>
@@ -450,7 +450,7 @@ const RoomTop: React.FC = () => {
       </div>
 
       <div className={styles.commentSection} style={{ width: '80%', maxWidth: '600px', marginBottom: '40px' }}>
-        <h2 htmlFor="comment" className={styles.label} style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', fontSize: '1.3em' }}>進捗コメント</h2>
+        <h2 className={styles.label} style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', fontSize: '1.3em' }}>進捗コメント</h2>
         <textarea
           id="comment"
           name="comment"
@@ -472,6 +472,7 @@ const RoomTop: React.FC = () => {
             room_id: room.roomId,
           }
           const res = await axios.post('http://localhost:8000/api/ws/save_progress', data, {withCredentials: true})
+          console.log(res);
           // ここでbackendに送信する処理を行う
           // fetch('/api/submit', {
           //   method: 'POST',

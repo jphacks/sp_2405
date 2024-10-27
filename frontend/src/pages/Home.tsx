@@ -1,4 +1,3 @@
-import React from 'react'
 import { Search, AddCircleOutline, Person, AnalyticsOutlined, Settings, Logout } from "@mui/icons-material";
 import home from '../css/pages/home.module.scss';
 import { NavLink, Outlet } from "react-router-dom";

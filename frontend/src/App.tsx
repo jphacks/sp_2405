@@ -3,7 +3,6 @@ import AppRouter from "./router/Router";
 import { AuthContext } from "./contexts/AuthContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import style from './css/style.module.scss';
 
 function App() {
   const url = "http://localhost:8000/api";

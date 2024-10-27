@@ -1,8 +1,6 @@
-import React from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { Box, Button, FormControl, TextField, Typography, Divider } from '@mui/material';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { createHash } from 'crypto';
+import { useForm, Controller, SubmitHandler, FieldValues } from 'react-hook-form';
+import { Box, Button, FormControl, TextField, Typography } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
 import { grey } from '@mui/material/colors';
 import styles from '../css/components/login.module.scss';
 import axios from 'axios';
@@ -29,13 +27,14 @@ const Login = () => {
     const data = {
       username: raw.email,
       password: hashHex,
-    }
+    };
 
-    const res = await axios.post('http://localhost:8000/api/auth/login', data, {withCredentials: true})
-    // console.log(res.data);
+    const res = await axios.post("http://localhost:8000/api/auth/login", data, {
+      withCredentials: true,
+    });
+    console.log(res.data);
 
-    navigate('/home/find_room');
-
+    navigate("/home/find_room");
   };
 
   return (
@@ -54,27 +53,29 @@ const Login = () => {
       </Typography>
 
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit as SubmitHandler<FieldValues>)}
         style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           width: "100%",
-        }}// フォームの上のマージン
+        }} // フォームの上のマージン
       >
         {["email", "password"].map((elem) => (
           <FormControl
             error={!!errors[elem]}
             key={elem}
             fullWidth
-            sx={{ mb: 0, mt: 6}} // フィールド間のマージン
+            sx={{ mb: 0, mt: 6 }} // フィールド間のマージン
           >
             <Controller
               control={control}
               name={elem}
               defaultValue=""
               rules={{
-                required: `${elem === "email" ? "メールアドレス" : "パスワード"}は必須です`,
+                required: `${
+                  elem === "email" ? "メールアドレス" : "パスワード"
+                }は必須です`,
                 ...(elem === "email" && {
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -90,7 +91,7 @@ const Login = () => {
                   required
                   label={elem === "email" ? "メールアドレス *" : "パスワード *"}
                   error={!!errors[elem]}
-                  helperText={errors[elem]?.message}
+                  // helperText={errors[elem]!.message}
                 />
               )}
             />
@@ -114,19 +115,21 @@ const Login = () => {
       <Typography
         variant="body2"
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
           mt: 6,
         }}
         className={styles.toLogin}
       >
         <p>アカウントをお持ちでないですか？</p>
-        <Link to="../register" style={{ color: '#1a73e8', textDecoration: 'none' }}>
+        <Link
+          to="../register"
+          style={{ color: "#1a73e8", textDecoration: "none" }}
+        >
           アカウント登録
         </Link>
       </Typography>
-
 
       {/* <Divider sx={{ my: 3 }} className={styles.divider}>
         または

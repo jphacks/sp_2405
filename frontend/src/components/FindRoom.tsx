@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import style from '../css/style.module.scss'
 import findRoom from '../css/components/find_room.module.scss'
 import { TextField, Button } from '@mui/material'
@@ -30,7 +30,7 @@ const FindRoom = () => {
   };
 
   const [rooms, setRooms] = useState<RoomType[]>([]);
-  const [modalRoom, setModalRoom] = useState<RoomType>({} as RoomType);
+  // const [modalRoom, setModalRoom] = useState<RoomType>({} as RoomType);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -50,6 +50,9 @@ const FindRoom = () => {
       { param: searchQuery, tag: selectedTag },
       { withCredentials: true }
     );
+
+    console.log(res);
+
   };
 
   const fetchRooms = async () => {
@@ -69,7 +72,7 @@ const FindRoom = () => {
     // setSelectedValue(value);
   };
 
-  const handleClick = (e) => {
+  const handleClick = () => {
     setOpen(true);
   };
 
@@ -117,7 +120,11 @@ const FindRoom = () => {
             ))}
           </ul>
         </div>
-        <Button className={findRoom.submit} variant="contained">
+        <Button
+          className={findRoom.submit}
+          variant="contained"
+          onClick={handleSearch}
+        >
           <Search />
         </Button>
       </div>

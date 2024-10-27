@@ -78,7 +78,7 @@ const FindRoom = () => {
 
   const handleRoomEnter = (room_id: string) => {
     Cookies.set("ROOM_ID", room_id, { expires: 10 });
-    navigate("/home");
+    navigate("/home/room");
   };
 
   return (

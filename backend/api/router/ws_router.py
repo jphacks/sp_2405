@@ -41,7 +41,7 @@ async def ws_room(ws: WebSocket, user_id: str):
   room = handler.verify_room(room_id)
   if not room:
     print('room is not found')
-    await ws.close()
+    # await ws.close()
     return
 
   await rooms.connect(ws, room_id)

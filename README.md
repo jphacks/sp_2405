@@ -1,5 +1,5 @@
 # ぽもとも
-![readme](./data/readme.png)
+![readme](readme.png)
 
 ## 製品概要
 ### 背景(製品開発のきっかけ、課題等）
@@ -113,4 +113,5 @@ UIコンポーネント設計
 
 Material-UIとRechartsを組み合わせたデータ可視化
 SCSSモジュールによるスタイリング管理
+
 レスポンシブデザインの実装

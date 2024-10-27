@@ -61,6 +61,12 @@ class ReactionInfoSchema(SQLAlchemyAutoSchema):
 
 # ProgressInfoスキーマ
 class ProgressInfoSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = ProgressInfo
+        load_instance = True
+        include_fk = True  # 外部キーを含める
+
+class ProgressReactionInfoSchema(SQLAlchemyAutoSchema):
     reaction = Nested(ReactionInfoSchema, many=True)  # 多対1のリレーションを設定
 
     class Meta:
@@ -293,7 +299,7 @@ def save_progress(user_id: str, start: str, progress_eval: int, progress_comment
     )
     session.add(progress)
     session.commit()
-    return progress, []
+    return ProgressInfoSchema().dump(progress), []
 
 def verify_room(room_id: str):
     room = session.query(RoomInfo).filter(RoomInfo.room_id == room_id).first()
@@ -304,7 +310,7 @@ def get_room(room_id: str):
     data = RoomInfoSchema().dump(room)
 
     progress = session.query(ProgressInfo).filter(ProgressInfo.room_id == room_id).options(selectinload(ProgressInfo.reaction)).all()
-    progress_info_schema = ProgressInfoSchema(many=True)
+    progress_info_schema = ProgressReactionInfoSchema(many=True)
     progress = progress_info_schema.dump(progress)
     # print(progress)
 

@@ -96,7 +96,7 @@ const RoomTop: React.FC = () => {
     progress: [],
   });
 
-  const focusDuration = 60; // テスト用: 集中時間（秒）
+  const focusDuration = 30; // テスト用: 集中時間（秒）
   const restDuration = 60; // テスト用: 休憩時間（秒）
   const totalCycleTime = focusDuration + restDuration; // 各サイクルの総時間（秒）
 
@@ -223,6 +223,24 @@ const RoomTop: React.FC = () => {
     ws.onmessage = (e) => {
       console.log(JSON.parse(e.data));
       // console.log(rows);
+      const raw = JSON.parse(e.data);
+      const data: ProgressType = {
+        progressId: raw.progress_id,
+        user: {
+          username: 'misaizu',
+          img: '/sample_avatar.png',
+        },
+        cycle: 1,
+        time: new Date(raw.start),
+        rating: raw.progress_eval,
+        comment: raw.progress_comment,
+        likes: 0,
+      };
+
+      setRoom({
+        ...room,
+        progress: [data, ...room.progress,]
+      })
     };
 
     fetchRoom();

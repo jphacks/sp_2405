@@ -48,7 +48,7 @@ const RoomTop: React.FC = () => {
   const [remainingCycles, setRemainingCycles] = useState<number>(RoomData.roomCycles);
   const [isButtonPressed, setIsButtonPressed] = useState<boolean>(false); // ページ2でボタンが押されたか
 
-  const focusDuration = 15; // テスト用: 集中時間（秒）
+  const focusDuration = 10500; // テスト用: 集中時間（秒）
   const restDuration = 7; // テスト用: 休憩時間（秒）
   const totalCycleTime = focusDuration + restDuration; // 各サイクルの総時間（秒）
 
@@ -245,17 +245,29 @@ const RoomTop: React.FC = () => {
             data={{
               datasets: [
                 {
-                  data: [remainingTime, focusDuration - remainingTime],
-                  backgroundColor: ['#36A2EB', '#FF6384'],
-                  hoverBackgroundColor: ['#36A2EB', '#FF6384'],
+                  data: [focusDuration/5 , remainingTime,  focusDuration - remainingTime],
+                  backgroundColor: [
+                    `rgba(255, 255, 255, 0.1)`,
+                    `rgba(0, 255, 0, 0.8)`,
+                    'rgba(0, 0, 0, 0.3)',
+                  ],
+                  hoverBackgroundColor: [
+                    `gradient(from 210deg, #36A2EB ${((focusDuration - remainingTime) / focusDuration) * 100}%, #FF6384 0%)`,
+                    'rgba(0, 0, 0, 0.3)',
+                  ],
+                  borderWidth: 0,
                 },
               ],
             }}
             options={{
-              cutout: '85%',
+                cutout: '85%',
+              rotation: 150, // 7時方向からスタート
               plugins: {
                 legend: {
                   display: false,
+                },
+                tooltip: {
+                  enabled: false,
                 },
               },
             }}
@@ -268,6 +280,7 @@ const RoomTop: React.FC = () => {
               transform: 'translate(-50%, -50%)',
               fontSize: '3em',
               color: 'white',
+              textShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
             }}
           >
             {formatTime(remainingTime)}

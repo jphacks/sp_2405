@@ -13,7 +13,7 @@ const RoomData = {
   roomMembers: 5,
   roomMembersName: ["misaizu", "Uuekun", "kazuki", "yamada", "suzuki"],
   roomMembersIcon: ["A.png", "B.png", "C.png", "D.png", "E.png"],
-  roomStartTime: "2024/10/27 12:04:50", // 手動で設定
+  roomStartTime: "2024/10/27 12:13:50", // 手動で設定
   roomCycles: 3,
   userData: [
     {
@@ -254,21 +254,21 @@ const RoomTop: React.FC = () => {
       </Link>
     </div>
   );
-  
+
   const renderPage2 = () => (
     <div className={styles.main} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '20px' }}>
       <h2 className={styles.subtitle} style={{ fontSize: '2em', marginBottom: '20px' }}>お疲れさまでした！</h2>
       <p className={styles.description} style={{ fontSize: '1.2em', marginBottom: '40px' }}>進捗の評価・やったことをコメントしてみましょう！</p>
-      
+
       <div className={styles.ratingSection} style={{ width: '80%', maxWidth: '600px', marginBottom: '40px' }}>
         <h2 htmlFor="rating" className={styles.label} style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', fontSize: '1.3em' }}>進捗</h2>
-        
+
         {/* スライダーの上に評価ラベル */}
         <div className={styles.ratingLabels} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1em', marginBottom: '10px' }}>
           <span>はかどらなかった...</span>
           <span>はかどった！</span>
         </div>
-        
+
         {/* スライダー本体 */}
         <input
           type="range"
@@ -281,7 +281,7 @@ const RoomTop: React.FC = () => {
           className={styles.slider}
           style={{ width: '100%', marginBottom: '20px' }}
         />
-  
+
         {/* 0, 5, 10 の下に線と数字 */}
         <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', width: '100%' }}>
           {[0, 5, 10].map((value) => (
@@ -292,7 +292,7 @@ const RoomTop: React.FC = () => {
           ))}
         </div>
       </div>
-  
+
       <div className={styles.commentSection} style={{ width: '80%', maxWidth: '600px', marginBottom: '40px' }}>
         <h2 htmlFor="comment" className={styles.label} style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', fontSize: '1.3em' }}>進捗コメント</h2>
         <textarea
@@ -304,7 +304,7 @@ const RoomTop: React.FC = () => {
           style={{ width: '100%', height: '150px', padding: '10px', fontSize: '1em', borderRadius: '8px', border: '1px solid #ccc' }}
         />
       </div>
-  
+
       <button
         className={styles.submitButton}
         onClick={() => {
@@ -319,7 +319,7 @@ const RoomTop: React.FC = () => {
           //   .then(response => response.json())
           //   .then(data => console.log(data))
           //   .catch(error => console.error('Error:', error));
-  
+
           // ボタン押下後、Page3に遷移する
           setIsButtonPressed(true);
         }}
@@ -329,7 +329,7 @@ const RoomTop: React.FC = () => {
       </button>
     </div>
   );
-  
+
   const renderPage3 = () => (
     <div className={styles.main}>
         <header className={styles.header}>

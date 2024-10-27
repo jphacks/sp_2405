@@ -13,11 +13,7 @@ const RoomData = {
   roomMembers: 5,
   roomMembersName: ["misaizu", "Uuekun", "kazuki", "yamada", "suzuki"],
   roomMembersIcon: ["A.png", "B.png", "C.png", "D.png", "E.png"],
-<<<<<<< HEAD
-  roomStartTime: "2024/10/27 11:25:50", // 手動で設定
-=======
-  roomStartTime: "2024/10/27 10:04:50", // 手動で設定
->>>>>>> d5bafa5780ff4efe39ff17bd416721123970452f
+  roomStartTime: "2024/10/27 12:04:50", // 手動で設定
   roomCycles: 3,
   userData: [
     {
@@ -51,7 +47,7 @@ const RoomTop: React.FC = () => {
   const [isButtonPressed, setIsButtonPressed] = useState<boolean>(false); // ページ2でボタンが押されたか
 
   const focusDuration = 15; // テスト用: 集中時間（秒）
-  const restDuration = 700; // テスト用: 休憩時間（秒）
+  const restDuration = 7; // テスト用: 休憩時間（秒）
   const totalCycleTime = focusDuration + restDuration; // 各サイクルの総時間（秒）
 
   // roomStartTimeをDateオブジェクトに変換
@@ -86,6 +82,7 @@ const RoomTop: React.FC = () => {
     if (cycleTime < focusDuration) {
       // ページ1: 集中時間
       setCurrentPage(1);
+      setIsButtonPressed(false);
       setRemainingTime(focusDuration - cycleTime);
     } else {
       // 休憩時間

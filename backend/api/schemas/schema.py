@@ -19,7 +19,7 @@ class CreateRoomCred(BaseModel):
   start_at: datetime
   cycle_num: int
 
-class SaveProgressCred(BaseModel):
+class SaveProgress(BaseModel):
   user_id: str
   start: datetime
   progress_eval: int

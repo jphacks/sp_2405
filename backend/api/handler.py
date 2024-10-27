@@ -251,4 +251,8 @@ def save_progress(user_id: str, start: str, progress_eval: int, progress_comment
     )
     session.add(progress)
     session.commit()
-    return True, []
+    return progress, []
+
+def verify_room(room_id: str):
+    room = session.query(RoomInfo).filter(RoomInfo.room_id == room_id).first()
+    return bool(room)

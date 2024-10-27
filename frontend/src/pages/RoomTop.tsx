@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Doughnut } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import styles from '../css/pages/room_top.module.scss';
 import { Link, useNavigate } from 'react-router-dom';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -11,7 +13,7 @@ const RoomData = {
   roomMembers: 5,
   roomMembersName: ["misaizu", "Uuekun", "kazuki", "yamada", "suzuki"],
   roomMembersIcon: ["A.png", "B.png", "C.png", "D.png", "E.png"],
-  roomStartTime: "2024/10/26 23:08:50", // 手動で設定
+  roomStartTime: "2024/10/27 09:50:50", // 手動で設定
   roomCycles: 3,
   userData: [
     {
@@ -21,7 +23,7 @@ const RoomData = {
       date: "2024/2/29 23:00 - 23:25",
       rating: 8,
       comment: "線形代数の勉強をしました！すごくわかりやすかった♪シュルダン環構造がちょっとわかってきたかも！",
-      likes: 2
+      likes: 2,
     },
     {
       username: "misaizu",
@@ -30,12 +32,12 @@ const RoomData = {
       date: "2024/2/29 23:00 - 23:25",
       rating: 7,
       comment: "線形代数の勉強をしました！すごくわかりやすかった♪シュルダン環構造がちょっとわかってきたかも！",
-      likes: 1
-    }
-  ]
+      likes: 1,
+    },
+  ],
 };
 
-type RoomDataType = typeof RoomData;
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const RoomTop: React.FC = () => {
   const navigate = useNavigate();
@@ -45,7 +47,7 @@ const RoomTop: React.FC = () => {
   const [isButtonPressed, setIsButtonPressed] = useState<boolean>(false); // ページ2でボタンが押されたか
 
   const focusDuration = 15; // テスト用: 集中時間（秒）
-  const restDuration = 5;   // テスト用: 休憩時間（秒）
+  const restDuration = 5; // テスト用: 休憩時間（秒）
   const totalCycleTime = focusDuration + restDuration; // 各サイクルの総時間（秒）
 
   // roomStartTimeをDateオブジェクトに変換
@@ -109,40 +111,6 @@ const RoomTop: React.FC = () => {
     return () => clearInterval(interval);
   }, [calculateState]);
 
-  // ページ3からの遷移を管理
-  useEffect(() => {
-    if (currentPage === 3) {
-      // ページ3表示中のタイマー
-      if (remainingTime <= 0) {
-        // タイマー終了時
-        if (remainingCycles > 1) {
-          setIsButtonPressed(false);
-          setCurrentPage(1); // 次のサイクルのページ1へ
-        } else {
-          navigate('/'); // 全サイクル終了後ホームへ
-        }
-      }
-    }
-
-    // ページ2で5秒間ボタンが押されなかった場合に自動的にページ1へ戻る
-    if (currentPage === 2 && remainingTime <= 0) {
-      if (remainingCycles > 1) {
-        setIsButtonPressed(false);
-        setCurrentPage(1); // 次のサイクルのページ1へ
-      } else {
-        navigate('/'); // 全サイクル終了後ホームへ
-      }
-    }
-  }, [currentPage, remainingTime, remainingCycles, navigate]);
-
-  // ボタン押下時の処理
-  const handleButtonPress = () => {
-    if (currentPage === 2) {
-      setIsButtonPressed(true);
-      setCurrentPage(3);
-    }
-  };
-
   // 残り時間をフォーマットする関数
   const formatTime = (timeInSeconds: number) => {
     const minutes = Math.floor(timeInSeconds / 60);
@@ -150,31 +118,152 @@ const RoomTop: React.FC = () => {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
+  // ページ0の内容
+  const renderPage0 = () => (
+    <div
+      style={{
+        backgroundImage: `url('/welcome_image.jpg')`,
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+        height: '100vh',
+        position: 'relative',
+      }}
+    >
+      <div
+        style={{
+          height: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.2)',
+          flexDirection: 'column', // テキストを縦に並べるためにflex方向を縦に
+        }}
+      >
+        <h2
+          style={{
+            fontSize: '9em', // フォントサイズ変更可能
+            color: '#00BFFF',
+            fontFamily: 'Arial, sans-serif', // フォント変更可能
+            lineHeight: '3em', // 行間を設定
+            margin: '0', // 上下余白をなくす
+          }}
+        >
+          Starting Soon!
+        </h2>
+        <p
+          style={{
+            fontSize: '7em', // フォントサイズ変更可能
+            fontWeight: 'bold',
+            color: 'white',
+            fontFamily: 'Arial, sans-serif', // フォント変更可能
+            lineHeight: '1.2em', // 行間を設定
+            margin: '0', // 上下余白をなくす
+          }}
+        >
+          {formatTime(remainingTime)}
+        </p>
+      </div>
+    </div>
+  );
+
+  // ページ1の内容
+  const renderPage1 = () => (
+    <div
+      className={styles.main}
+      style={{
+        backgroundImage: `url('/welcome_image.jpg')`,
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+        height: '100vh',
+        position: 'relative',
+      }}
+    >
+      <div
+        style={{
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+        }}
+      >
+        <h2
+          style={{
+            fontSize: '4em',
+            color: '#FFFFFF',
+            fontFamily: 'Arial, sans-serif',
+            marginBottom: '20px',
+          }}
+        >
+          {RoomData.roomName}
+        </h2>
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '40px' }}>
+          {RoomData.roomMembersIcon.map((icon, index) => (
+            <img
+              key={index}
+              src={icon}
+              alt={`User Icon ${index}`}
+              style={{ width: '40px', height: '40px', borderRadius: '50%' }}
+            />
+          ))}
+        </div>
+        <div style={{ position: 'relative', width: '400px', height: '400px' }}>
+          <Doughnut
+            data={{
+              datasets: [
+                {
+                  data: [remainingTime, focusDuration - remainingTime],
+                  backgroundColor: ['#36A2EB', '#FF6384'],
+                  hoverBackgroundColor: ['#36A2EB', '#FF6384'],
+                },
+              ],
+            }}
+            options={{
+              cutout: '85%',
+              plugins: {
+                legend: {
+                  display: false,
+                },
+              },
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              fontSize: '3em',
+              color: 'white',
+            }}
+          >
+            {formatTime(remainingTime)}
+          </div>
+        </div>
+      </div>
+      <Link to="/" className={styles.exitButton}>
+        <div className={styles.logoutIconContainer}>
+          <LogoutIcon/>
+        </div>
+      </Link>
+    </div>
+  );
+  
+
   // ページのレンダリング
   const renderPage = () => {
     switch (currentPage) {
       case 0:
-        return (
-          <div className={styles.main}>
-            <h2>ちょっと待ってね</h2>
-            <p className={`${styles.timer} ${styles.monospace}`}>開始まで: {formatTime(remainingTime)}</p>
-            {/* ページ0の内容 */}
-          </div>
-        );
+        return renderPage0();
       case 1:
-        return (
-          <div className={styles.main}>
-            <h2>ページ1: 集中時間</h2>
-            <p className={`${styles.timer} ${styles.monospace}`}>残り時間: {formatTime(remainingTime)}</p>
-            {/* ページ1の内容 */}
-          </div>
-        );
+        return renderPage1();
       case 2:
         return (
           <div className={styles.main}>
             <h2>ページ2: 休憩開始</h2>
             <p className={`${styles.timer} ${styles.monospace}`}>残り時間: {formatTime(remainingTime)}</p>
-            <button onClick={handleButtonPress}>ページ3へ</button>
+            <button onClick={() => setIsButtonPressed(true)}>送信</button>
             {/* ページ2の内容 */}
           </div>
         );
@@ -182,11 +271,6 @@ const RoomTop: React.FC = () => {
         return (
           <div className={styles.main}>
             <header className={styles.header}>
-              <Link to="/" className={styles.exitButton}>
-                <div className={styles.logoutIconContainer}>
-                  <LogoutIcon style={{ transform: 'rotate(180deg)' }} />
-                </div>
-              </Link>
               <div className={styles.cycleInfo}>
                 <span>残り {remainingCycles - 1} サイクル</span>
                 <span>次のサイクルまで {formatTime(remainingTime)}</span>
@@ -194,26 +278,9 @@ const RoomTop: React.FC = () => {
             </header>
             <h2 className={styles.subtitle}>{RoomData.roomName}</h2>
             <p className={`${styles.timer} ${styles.monospace}`}>残り時間: {formatTime(remainingTime)}</p>
-            <div className={styles.cardContainer}>
-              {RoomData.userData
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                .map((user, index) => (
-                  <div key={index} className={styles.card}>
-                    <p className={styles.username}>
-                      <img src={user.userIcon} alt={user.username} className={styles.userIcon} />
-                      {user.username}
-                    </p>
-                    <p className={styles.cycle}>Cycle {user.cycle}</p>
-                    <p className={styles.time}>{user.date}</p>
-                    <div className={styles.rating}>
-                      {[...Array(10)].map((_, i) => (
-                        <span key={i} className={i < user.rating ? styles.full : styles.empty}>●</span>
-                      ))}
-                    </div>
-                    <p className={styles.comment}>{user.comment}</p>
-                    <p className={styles.likes}>❤️ {user.likes}</p>
-                  </div>
-                ))}
+            {/* ページ3の内容 */}
+            <div className={styles.logoutIconContainer}>
+              <LogoutIcon/>
             </div>
           </div>
         );
@@ -222,11 +289,7 @@ const RoomTop: React.FC = () => {
     }
   };
 
-  return (
-    <div className={styles.main}>
-      {renderPage()}
-    </div>
-  );
+  return <div className={styles.main}>{renderPage()}</div>;
 };
 
 export default RoomTop;

@@ -31,16 +31,17 @@ class Room:
 
 rooms = Room()
 
-@ws_router.websocket(path='/room/{user_id}')
+@ws_router.websocket(path='/room')
 async def ws_room(ws: WebSocket, user_id: str):
-
+  print('aaa')
   room_id = ws.cookies.get('ROOM_ID', '')
 
   room = handler.verify_room(room_id)
   if room is None:
+    print('room is not found')
     return
 
-  rooms.connect(ws, room_id)
+  await rooms.connect(ws, room_id)
 
   try:
     while True:

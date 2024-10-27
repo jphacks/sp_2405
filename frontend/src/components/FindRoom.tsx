@@ -5,6 +5,8 @@ import { TextField, Button } from '@mui/material'
 import { Search, Add } from '@mui/icons-material'
 import axios from 'axios'
 import CreateRoom from './CreateRoom'
+import Cookies from "js-cookie";
+import { useNavigate } from 'react-router-dom'
 
 const FindRoom = () => {
   type RoomType = {
@@ -20,6 +22,8 @@ const FindRoom = () => {
     img: string,
     user_imgs: string[],
   }
+
+  const navigate = useNavigate();
 
   const convertTime = (time: Date) => {
     return time.toLocaleString('ja');
@@ -64,6 +68,11 @@ const FindRoom = () => {
 
   const handleClick = (e) => {
     setOpen(true);
+  }
+
+  const handleRoomEnter = (room_id: string) => {
+    Cookies.set('ROOM_ID', room_id, {expires: 10});
+    navigate('/home/room');
   }
 
   return (
@@ -119,6 +128,7 @@ const FindRoom = () => {
                 type="button"
                 // width='100%'
                 className={findRoom.roomListLink}
+                onClick={() => handleRoomEnter(room.room_id)}
               >
                 <div className={findRoom.roomListItemImg}>
                   <img src={room.img == null ? '/sample_room.JPG' : room.img} alt="" />

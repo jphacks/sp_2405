@@ -166,6 +166,7 @@ def get_user_from_token(token: str):
     if user_id:
         user = session.query(UserData).filter(UserData.user_id == user_id).one()
         data = {
+            'user_id': user.user_id,
             'username': user.username,
             'email': user.email,
         }
@@ -277,3 +278,9 @@ def save_progress(user_id: str, start: str, progress_eval: int, progress_comment
 def verify_room(room_id: str):
     room = session.query(RoomInfo).filter(RoomInfo.room_id == room_id).first()
     return bool(room)
+
+def get_room(room_id: str):
+    room = session.query(RoomInfo).filter(RoomInfo.room_id == room_id).options(joinedload(RoomInfo.tag)).first()
+    data = RoomInfoSchema().dump(room)
+
+    return data

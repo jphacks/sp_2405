@@ -1,15 +1,17 @@
-from fastapi import FastAPI, HTTPException, Request, status
+from collections import defaultdict
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.router.router import router
-from api.handler import create
+import api.handler as handler
+from api.schemas.schema import SaveProgress
 
-create()
+handler.create()
 app = FastAPI()
 
-origins = ['http://localhost:5173', 'http://127.0.0.1:5173']
+origins = ['http://localhost:5173', 'http://127.0.0.1:5173', 'ws://localhost:5173', '*']
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -38,6 +40,6 @@ async def verify_token(req: Request, call_next):
     return response
 
 @app.exception_handler(RequestValidationError)
-async def handler(request:Request, exc:RequestValidationError):
+async def exception_handler(request:Request, exc:RequestValidationError):
     print(exc)
     return JSONResponse(content={}, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)

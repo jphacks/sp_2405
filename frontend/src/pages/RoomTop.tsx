@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useContext } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import styles from '../css/pages/room_top.module.scss';
 import { Link, useNavigate } from 'react-router-dom';
 import LogoutIcon from '@mui/icons-material/Logout';
+import axios from 'axios';
+import { AuthContext } from '../contexts/AuthContext';
 
 // RoomDataを手動で設定
 const RoomData = {
@@ -13,7 +15,7 @@ const RoomData = {
   roomMembers: 5,
   roomMembersName: ["misaizu", "Uuekun", "kazuki", "yamada", "suzuki"],
   roomMembersIcon: ["A.png", "B.png", "C.png", "D.png", "E.png"],
-  roomStartTime: "2024/10/27 10:04:50", // 手動で設定
+  roomStartTime: "2024/10/27 13:42:50", // 手動で設定
   roomCycles: 3,
   userData: [
     {
@@ -110,6 +112,31 @@ const RoomTop: React.FC = () => {
 
     return () => clearInterval(interval);
   }, [calculateState]);
+
+  // websocket接続部
+  const socketRef = useRef<WebSocket>();
+  const { userData } = useContext(AuthContext);
+
+  useEffect(() => {
+    const params = new URLSearchParams({user_id: userData.user_id});
+    const ws = new WebSocket(
+      `ws://localhost:8000/api/ws/room?${params.toString()}`
+    );
+
+    socketRef.current = ws;
+    ws.onmessage = (e) => {
+      console.log(JSON.parse(e.data));
+      // console.log(rows);
+    };
+
+    return () => {
+
+      if (ws.readyState === 1) {
+        ws.close();
+      }
+    };
+  }, []);
+
 
   // 残り時間をフォーマットする関数
   const formatTime = (timeInSeconds: number) => {

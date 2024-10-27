@@ -1,6 +1,5 @@
-import React from "react";
 import { Box, Typography } from "@mui/material";
-import { PieChart, Pie, Cell, Legend } from "recharts";
+import { PieChart, Pie, Cell } from "recharts";
 import style from "../css/style.module.scss";
 import analysis from "../css/components/analysis.module.scss";
 
@@ -82,7 +81,7 @@ const Analysis = () => {
                   startAngle={90}
                   endAngle={-270}
                   fill="#8884d8"
-                  skipAnimation
+                  // skipAnimation
                 >
                   {todayData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -111,7 +110,7 @@ const Analysis = () => {
             <ul className={analysis.chartLegend}>
               {todayData.map((entry, index) => (
                 <li key={entry.name}>
-                  <span style={{ backgroundColor: COLORS[index % COLORS.length] }}></span> 
+                  <span style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
                   {entry.name} ({entry.value}%)
                 </li>
               ))}
@@ -133,7 +132,7 @@ const Analysis = () => {
                   startAngle={90}
                   endAngle={-270}
                   fill="#8884d8"
-                  skipAnimation
+                  // skipAnimation
                 >
                   {totalData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -162,7 +161,7 @@ const Analysis = () => {
             <ul className={analysis.chartLegend}>
               {totalData.map((entry, index) => (
                 <li key={entry.name}>
-                  <span style={{ backgroundColor: COLORS[index % COLORS.length] }}></span> 
+                  <span style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
                   {entry.name} ({entry.value}%)
                 </li>
               ))}

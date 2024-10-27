@@ -44,18 +44,9 @@ async def login(res: Response, data: LoginCred):
 
 @auth_router.get(path='/profile')
 async def profile(req: Request):
-  data = {
-    'username': 'a',
-    'email': 'a@example.com'
-  }
-  # return JSONResponse({'detail': 'aaa'}, status_code=status.HTTP_400_BAD_REQUEST)
-  # return JSONResponse({'detail': data}, status_code=status.HTTP_200_OK)
-
-  # print(req.cookies)
-  print(req.cookies.get('CLIENT_TOKEN', ''))
   data = get_user_from_token(req.cookies.get('CLIENT_TOKEN', ''))
-  print(data)
+  # print(data)
   if data:
-    return JSONResponse({'detail': data}, status_code=status.HTTP_200_OK)
+    return JSONResponse(data, status_code=status.HTTP_200_OK)
   else:
     return JSONResponse({'detail': 'user not found'}, status_code=status.HTTP_401_UNAUTHORIZED)

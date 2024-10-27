@@ -1,13 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useContext } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import styles from '../css/pages/room_top.module.scss';
 import { Link, useNavigate } from 'react-router-dom';
 import LogoutIcon from '@mui/icons-material/Logout';
+import axios from 'axios';
+import { AuthContext } from '../contexts/AuthContext';
 
 // RoomDataを手動で設定
+/*
 const RoomData = {
-  roomName: "数学を頑張る部屋",
+  roomName: "ジョルダン標準形を覚える会",
   roomOwner: "misaizu",
   roomIcon: "frontend/src/components/test_img/Uuekun.png",
   roomMembers: 5,
@@ -36,6 +39,42 @@ const RoomData = {
     },
   ],
 };
+*/
+type UserType = {
+  username: string,
+  img: string,
+}
+
+type ProgressType = {
+  progressId: string,
+  user: UserType,
+  cycle: number,
+  time: Date,
+  rating: number,
+  comment: string,
+  likes: number,
+}
+
+type RawProgressType = {
+  user_id: string,
+  start: string,
+  progress_eval: number,
+  progress_comment: string,
+  progress_id: string,
+  room_id: string,
+  reaction: string[],
+}
+
+type RoomDataType = {
+  title: string,
+  description: string,
+  cycleNum: number,
+  cycleCurrent: number,
+  startAt: Date,
+  users: UserType[],
+  progress: ProgressType[],
+  roomId: string,
+}
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -43,19 +82,34 @@ const RoomTop: React.FC = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState<number>(0); // 0: Waiting, 1: Focus, 2: Rest Start, 3: Rest Review
   const [remainingTime, setRemainingTime] = useState<number>(0); // 残り時間（秒）
-  const [remainingCycles, setRemainingCycles] = useState<number>(RoomData.roomCycles);
+  const [remainingCycles, setRemainingCycles] = useState<number>(0);
   const [isButtonPressed, setIsButtonPressed] = useState<boolean>(false); // ページ2でボタンが押されたか
 
-  const focusDuration = 140; // テスト用: 集中時間（秒）
-  const restDuration = 300; // テスト用: 休憩時間（秒）
+  const [room, setRoom] = useState<RoomDataType>({
+    roomId: '',
+    title: '',
+    description: '',
+    cycleNum: 99,
+    cycleCurrent: 0,
+    startAt: new Date(Date.now()),
+    users: [],
+    progress: [],
+  });
+
+  const focusDuration = 30; // テスト用: 集中時間（秒）
+  const restDuration = 60; // テスト用: 休憩時間（秒）
   const totalCycleTime = focusDuration + restDuration; // 各サイクルの総時間（秒）
 
   // roomStartTimeをDateオブジェクトに変換
-  const roomStartTimestamp = new Date(RoomData.roomStartTime).getTime();
+  const [roomStartTimestamp, setRoomStartTimestamp] = useState(Date.now());
+  // const roomStartTimestamp = new Date(RoomData.roomStartTime).getTime();
 
   // 現在の状態を計算する関数
   const calculateState = useCallback(() => {
     const now = Date.now();
+    if(roomStartTimestamp !== room.startAt.getTime()){
+      setRoomStartTimestamp(room.startAt.getTime());
+    }
 
     if (now < roomStartTimestamp) {
       // ページ0: 開始待機
@@ -66,18 +120,21 @@ const RoomTop: React.FC = () => {
     }
 
     const elapsedTime = Math.floor((now - roomStartTimestamp) / 1000); // 経過秒数
-    const totalTime = RoomData.roomCycles * totalCycleTime;
+    // console.log(room.startAt.getTime());
+    // console.log(roomStartTimestamp);
+
+    const totalTime = room.cycleNum * totalCycleTime;
 
     if (elapsedTime >= totalTime) {
       // 全サイクル終了
-      navigate('/');
+      navigate("/");
       return;
     }
 
     const currentCycle = Math.floor(elapsedTime / totalCycleTime) + 1;
     const cycleTime = elapsedTime % totalCycleTime;
 
-    setRemainingCycles(RoomData.roomCycles - currentCycle + 1);
+    setRemainingCycles(room.cycleNum - currentCycle + 1);
 
     if (cycleTime < focusDuration) {
       // ページ1: 集中時間
@@ -99,7 +156,7 @@ const RoomTop: React.FC = () => {
         setRemainingTime(remainingRestTime);
       }
     }
-  }, [isButtonPressed, navigate]);
+  }, [isButtonPressed, navigate, room]);
 
   // タイマーを設定
   useEffect(() => {
@@ -111,6 +168,92 @@ const RoomTop: React.FC = () => {
 
     return () => clearInterval(interval);
   }, [calculateState]);
+
+  // websocket接続部
+  const socketRef = useRef<WebSocket>();
+  const { userData } = useContext(AuthContext);
+
+  const fetchRoom = async () => {
+    const res = await axios.get('http://localhost:8000/api/get_room', {withCredentials: true})
+    // console.log(res.data);
+    const raw_room = res.data.room;
+    const raw_progress: RawProgressType[] = res.data.progress;
+    // console.log(raw_progress);
+
+    const data: RoomDataType = {
+      roomId: raw_room.room_id,
+      title: raw_room.title,
+      description: raw_room.description,
+      cycleNum: raw_room.cycle_num,
+      cycleCurrent: raw_room.cycle_current,
+      startAt: new Date(raw_room.start_at),
+      users: [],
+      progress: raw_progress.map((elem: RawProgressType): ProgressType => {
+        return {
+          user: {
+            username: 'misaizu',
+            img: '/sample_avatar.png',
+          },
+          progressId: elem.progress_id,
+          rating: elem.progress_eval,
+          comment: elem.progress_comment,
+          likes: elem.reaction.length,
+          cycle: 1,
+          time: new Date(Date.now()),
+        }
+      }),
+    }
+
+    setRoom(data);
+
+    // console.log('ppp');
+  }
+
+  useEffect(() => {
+    const params = new URLSearchParams({user_id: userData.user_id});
+    const ws = new WebSocket(
+      `ws://localhost:8000/api/ws/room?${params.toString()}`
+    );
+
+    socketRef.current = ws;
+    ws.onerror = (error) => {
+      console.error("WebSocket接続エラー:", error);
+      navigate('/')
+    };
+    ws.onmessage = (e) => {
+      console.log(JSON.parse(e.data));
+      // console.log(rows);
+      const raw = JSON.parse(e.data);
+      const data: ProgressType = {
+        progressId: raw.progress_id,
+        user: {
+          username: 'misaizu',
+          img: '/sample_avatar.png',
+        },
+        cycle: 1,
+        time: new Date(raw.start),
+        rating: raw.progress_eval,
+        comment: raw.progress_comment,
+        likes: 0,
+      };
+
+      setRoom({
+        ...room,
+        progress: [data, ...room.progress,]
+      })
+    };
+
+    fetchRoom();
+    calculateState();
+
+    return () => {
+
+      if (ws.readyState === 1) {
+        ws.close();
+      }
+    };
+  }, []);
+
 
   // 残り時間をフォーマットする関数
   const formatTime = (timeInSeconds: number) => {
@@ -201,14 +344,14 @@ const RoomTop: React.FC = () => {
             marginBottom: '20px',
           }}
         >
-          {RoomData.roomName}
+          {room.title}
         </h2>
         <div style={{ display: 'flex', gap: '10px', marginBottom: '40px' }}>
-          {RoomData.roomMembersIcon.map((icon, index) => (
+          {room.users.map((user) => (
             <img
-              key={index}
-              src={icon}
-              alt={`User Icon ${index}`}
+              key={user.username}
+              src={user.img}
+              alt={`User Icon ${user.username}`}
               style={{ width: '40px', height: '40px', borderRadius: '50%' }}
             />
           ))}
@@ -267,21 +410,21 @@ const RoomTop: React.FC = () => {
       </Link>
     </div>
   );
-  
+
   const renderPage2 = () => (
     <div className={styles.main} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '20px' }}>
       <h2 className={styles.subtitle} style={{ fontSize: '2em', marginBottom: '20px' }}>お疲れさまでした！</h2>
       <p className={styles.description} style={{ fontSize: '1.2em', marginBottom: '40px' }}>進捗の評価・やったことをコメントしてみましょう！</p>
-      
+
       <div className={styles.ratingSection} style={{ width: '80%', maxWidth: '600px', marginBottom: '40px' }}>
-        <h2 htmlFor="rating" className={styles.label} style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', fontSize: '1.3em' }}>進捗</h2>
-        
+        <h2 className={styles.label} style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', fontSize: '1.3em' }}>進捗</h2>
+
         {/* スライダーの上に評価ラベル */}
         <div className={styles.ratingLabels} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1em', marginBottom: '10px' }}>
           <span>はかどらなかった...</span>
           <span>はかどった！</span>
         </div>
-        
+
         {/* スライダー本体 */}
         <input
           type="range"
@@ -294,7 +437,7 @@ const RoomTop: React.FC = () => {
           className={styles.slider}
           style={{ width: '100%', marginBottom: '20px' }}
         />
-  
+
         {/* 0, 5, 10 の下に線と数字 */}
         <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', width: '100%' }}>
           {[0, 5, 10].map((value) => (
@@ -305,9 +448,9 @@ const RoomTop: React.FC = () => {
           ))}
         </div>
       </div>
-  
+
       <div className={styles.commentSection} style={{ width: '80%', maxWidth: '600px', marginBottom: '40px' }}>
-        <h2 htmlFor="comment" className={styles.label} style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', fontSize: '1.3em' }}>進捗コメント</h2>
+        <h2 className={styles.label} style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', fontSize: '1.3em' }}>進捗コメント</h2>
         <textarea
           id="comment"
           name="comment"
@@ -317,10 +460,19 @@ const RoomTop: React.FC = () => {
           style={{ width: '100%', height: '150px', padding: '10px', fontSize: '1em', borderRadius: '8px', border: '1px solid #ccc' }}
         />
       </div>
-  
+
       <button
         className={styles.submitButton}
-        onClick={() => {
+        onClick={async () => {
+          const data = {
+            user_id: userData.user_id,
+            start: Date.now(),
+            progress_eval: rating,
+            progress_comment: comment,
+            room_id: room.roomId,
+          }
+          const res = await axios.post('http://localhost:8000/api/ws/save_progress', data, {withCredentials: true})
+          console.log(res);
           // ここでbackendに送信する処理を行う
           // fetch('/api/submit', {
           //   method: 'POST',
@@ -332,7 +484,7 @@ const RoomTop: React.FC = () => {
           //   .then(response => response.json())
           //   .then(data => console.log(data))
           //   .catch(error => console.error('Error:', error));
-  
+
           // ボタン押下後、Page3に遷移する
           setIsButtonPressed(true);
         }}
@@ -342,7 +494,7 @@ const RoomTop: React.FC = () => {
       </button>
     </div>
   );
-  
+
   const renderPage3 = () => (
     <div className={styles.main}>
         <header className={styles.header}>
@@ -356,26 +508,26 @@ const RoomTop: React.FC = () => {
             <span>次のサイクルまで {formatTime(remainingTime)}</span>
           </div>
         </header>
-        <h2 className={styles.subtitle}>{RoomData.roomName}</h2>
-        {/* <p>残り時間: {formatTime(remainingTime)}</p> */}
+        <h2 className={styles.subtitle}>{room.title}</h2>
+        <p>残り時間: {formatTime(remainingTime)}</p>
         <div className={styles.cardContainer}>
-          {RoomData.userData
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-            .map((user, index) => (
-              <div key={index} className={styles.card}>
+          {room.progress
+            // .sort((p) => new Date(p.date).getTime() - new Date(a.date).getTime())
+            .map((elem) => (
+              <div key={elem.progressId} className={styles.card}>
                 <p className={styles.username}>
-                  <img src={user.userIcon} alt={user.username} className={styles.userIcon} />
-                  {user.username}
+                  <img src={elem.user.img} alt={elem.user.username} className={styles.userIcon} />
+                  {elem.user.username}
                 </p>
-                <p className={styles.cycle}>Cycle {user.cycle}</p>
-                <p className={styles.time}>{user.date}</p>
+                <p className={styles.cycle}>Cycle {elem.cycle}</p>
+                <p className={styles.time}>{elem.time.toISOString()}</p>
                 <div className={styles.rating}>
                   {[...Array(10)].map((_, i) => (
-                    <span key={i} className={i < user.rating ? styles.full : styles.empty}>●</span>
+                    <span key={i} className={i < elem.rating ? styles.full : styles.empty}>●</span>
                   ))}
                 </div>
-                <p className={styles.comment}>{user.comment}</p>
-                <p className={styles.likes}>❤️ {user.likes}</p>
+                <p className={styles.comment}>{elem.comment}</p>
+                <p className={styles.likes}>❤️ {elem.likes}</p>
               </div>
             ))}
         </div>
@@ -398,7 +550,11 @@ const RoomTop: React.FC = () => {
     }
   };
 
-  return <div className={styles.main}>{renderPage()}</div>;
+  return (
+    <div className={styles.main}>
+      {renderPage()}
+    </div>
+  );
 };
 
 export default RoomTop;

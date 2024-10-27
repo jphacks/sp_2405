@@ -6,9 +6,10 @@ import hashlib
 
 from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer, ForeignKey, select, or_
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker, joinedload
+from sqlalchemy.orm import relationship, sessionmaker, joinedload, selectinload
 from marshmallow import Schema, fields
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow_sqlalchemy.fields import Nested
 from ulid import ULID
 import cv2
 
@@ -24,7 +25,7 @@ class UserData(Base):
     username = Column(String(64), nullable=False, unique=True)
     user_id = Column(String(26), nullable=False, primary_key=True)
     password = Column(String(64), nullable=False)
-    room_id = Column(String(26), ForeignKey('room_info.room_id', ondelete='SET NULL'), unique=True)
+    room_id = Column(String(26), ForeignKey('room_info.room_id', ondelete='SET NULL'))
 
 # ログインセッション管理用トークンテーブル(tokens)
 class Tokens(Base):
@@ -41,12 +42,37 @@ class ProgressInfo(Base):
     progress_eval = Column(Integer)
     progress_comment = Column(String(256))
     room_id = Column(String(26), ForeignKey('room_info.room_id', ondelete='CASCADE'), nullable=False)
+    reaction = relationship('ReactionInfo', back_populates='progress')
 
 # リアクション情報(reaction_info)テーブルの定義
 class ReactionInfo(Base):
     __tablename__ = 'reaction_info'
-    user_id = Column(String(26), ForeignKey('userdata.user_id', ondelete='CASCADE'), nullable=False ,primary_key=True)
+    user_id = Column(String(26), ForeignKey('userdata.user_id', ondelete='CASCADE'), nullable=False, primary_key=True)
     progress_id = Column(String(26), ForeignKey('progress_info.progress_id', ondelete='CASCADE'), nullable=False, primary_key=True)
+    progress = relationship('ProgressInfo')
+
+
+# ReactionInfoスキーマ
+class ReactionInfoSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = ReactionInfo
+        load_instance = True
+        include_fk = True  # 外部キーを含める
+
+# ProgressInfoスキーマ
+class ProgressInfoSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = ProgressInfo
+        load_instance = True
+        include_fk = True  # 外部キーを含める
+
+class ProgressReactionInfoSchema(SQLAlchemyAutoSchema):
+    reaction = Nested(ReactionInfoSchema, many=True)  # 多対1のリレーションを設定
+
+    class Meta:
+        model = ProgressInfo
+        load_instance = True
+        include_fk = True  # 外部キーを含める
 
 # 部屋情報(room_info)テーブルの定義
 class RoomInfo(Base):
@@ -117,7 +143,7 @@ def set_token(user_id: str, token: str) -> None:
 
 def get_token(user_id: str) -> str:
     token = session.query(Tokens.session_token).filter(Tokens.user_id == user_id).scalar()
-    print(token)
+    # print(token)
 
     return token
 
@@ -166,6 +192,7 @@ def get_user_from_token(token: str):
     if user_id:
         user = session.query(UserData).filter(UserData.user_id == user_id).one()
         data = {
+            'user_id': user.user_id,
             'username': user.username,
             'email': user.email,
         }
@@ -207,7 +234,7 @@ def search_rooms(param: str = None, tag: str = None):
 
     rooms = query.all()
 
-    print(rooms)
+    # print(rooms)
 
     data = [
         {
@@ -258,7 +285,7 @@ def get_user_info(user_id: str):
 def save_progress(user_id: str, start: str, progress_eval: int, progress_comment: str, room_id: str):
     if session.query(UserData).filter(UserData.user_id == user_id).scalar() is None:
         return False, ['Designated user does not exist']
-    print(session.query(RoomInfo).filter(RoomInfo.room_id == room_id).scalar())
+    # print(session.query(RoomInfo).filter(RoomInfo.room_id == room_id).scalar())
     if session.query(RoomInfo).filter(RoomInfo.room_id == room_id).scalar() is None:
         return False, ['Designated room does not exist']
 
@@ -272,8 +299,25 @@ def save_progress(user_id: str, start: str, progress_eval: int, progress_comment
     )
     session.add(progress)
     session.commit()
-    return progress, []
+    return ProgressInfoSchema().dump(progress), []
 
 def verify_room(room_id: str):
     room = session.query(RoomInfo).filter(RoomInfo.room_id == room_id).first()
     return bool(room)
+
+def get_room(room_id: str):
+    room = session.query(RoomInfo).filter(RoomInfo.room_id == room_id).options(joinedload(RoomInfo.tag)).first()
+    data = RoomInfoSchema().dump(room)
+
+    progress = session.query(ProgressInfo).filter(ProgressInfo.room_id == room_id).options(selectinload(ProgressInfo.reaction)).all()
+    progress_info_schema = ProgressReactionInfoSchema(many=True)
+    progress = progress_info_schema.dump(progress)
+    # print(progress)
+
+    for i, datum in enumerate(progress):
+        user_ids = [d['user_id'] for d in datum['reaction']]
+        progress[i]['reaction'] = user_ids
+
+    # print(data)
+
+    return {'room': data, 'progress': progress}

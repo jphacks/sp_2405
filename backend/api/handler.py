@@ -2,6 +2,7 @@ from datetime import datetime
 from pathlib import Path
 import base64
 import re
+import hashlib
 
 from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer, ForeignKey, select, or_
 from sqlalchemy.ext.declarative import declarative_base
@@ -28,8 +29,8 @@ class UserData(Base):
 # ログインセッション管理用トークンテーブル(tokens)
 class Tokens(Base):
     __tablename__ = 'tokens'
-    user_id = Column(String(26), ForeignKey('userdata.user_id', ondelete='CASCADE'), primary_key=True)
-    session_token = Column(String(26), nullable=False, unique=True)
+    user_id = Column(String(26), ForeignKey('userdata.user_id', ondelete='CASCADE'))
+    session_token = Column(String(26), nullable=False, primary_key=True)
 
 # 進捗報告(progress_info)テーブルの定義
 class ProgressInfo(Base):
@@ -112,6 +113,7 @@ def set_token(user_id: str, token: str) -> None:
     if user:
         session.add(Tokens(user_id=user_id, session_token=token))
         session.commit()
+        # print('aaa')
 
 def get_token(user_id: str) -> str:
     token = session.query(Tokens.session_token).filter(Tokens.user_id == user_id).scalar()
@@ -136,10 +138,17 @@ def verify_register(username: str, email: str) -> (bool, list[str]):
 
 # ユーザー情報を新規登録
 def register(username: str, email: str, password: str) -> bool:
-    user = UserData(username=username, email=email, password=password, user_id=ULID())
+    password = hashlib.sha256(password.encode()).hexdigest()
+    user_id = str(ULID())
+    user = UserData(
+        username=username,
+        email=email,
+        password=password,
+        user_id=user_id
+    )
     session.add(user)
     session.commit()
-    return True
+    return user_id
 
 def verify_login(query: str, password: str) -> bool:
     if re.match(r'.+@.+\..+', query):

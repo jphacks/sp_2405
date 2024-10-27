@@ -10,7 +10,7 @@ import { AuthContext } from '../contexts/AuthContext';
 // RoomDataを手動で設定
 /*
 const RoomData = {
-  roomName: "数学を頑張る部屋",
+  roomName: "ジョルダン標準形を覚える会",
   roomOwner: "misaizu",
   roomIcon: "frontend/src/components/test_img/Uuekun.png",
   roomMembers: 5,
@@ -385,7 +385,7 @@ const RoomTop: React.FC = () => {
           </div>
         </div>
       </div>
-      <Link to="/" className={styles.exitButton}>
+      <Link to="/" className={styles.exitButton_1}>
         <div className={styles.logoutIconContainer}>
           <LogoutIcon/>
         </div>

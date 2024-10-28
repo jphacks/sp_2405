@@ -92,6 +92,8 @@
 - Docker
 - GCP Compute Engine
 
+![](./tapi.png)
+
 #### デバイス
 * クロスプラットフォーム対応
 

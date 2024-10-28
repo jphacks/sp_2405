@@ -87,6 +87,11 @@
 データベース
 - MySQL
 
+サーバー関係
+- Nginx
+- Docker
+- GCP Compute Engine
+
 #### デバイス
 * クロスプラットフォーム対応
 

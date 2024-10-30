@@ -120,23 +120,18 @@ class RoomTag(Base):
 engine = create_engine('mysql://pomodoro:pomodoro@db:3306/pomodoro')
 
 def create():
-    while True:
-        try:
-            # テーブルの作成
-            Base.metadata.create_all(engine)
-            study = TagInfo(tag_id='tag1', name='Study', color='#F24822')
-            work = TagInfo(tag_id='tag2', name='Work', color='#52f00e')
-            programming = TagInfo(tag_id='tag3', name='Programming', color='#FFA629')
-            workout = TagInfo(tag_id='tag4', name='Workout', color='#FACC00')
+    # テーブルの作成
+    Base.metadata.create_all(engine)
+    study = TagInfo(tag_id='tag1', name='Study', color='#F24822')
+    work = TagInfo(tag_id='tag2', name='Work', color='#52f00e')
+    programming = TagInfo(tag_id='tag3', name='Programming', color='#FFA629')
+    workout = TagInfo(tag_id='tag4', name='Workout', color='#FACC00')
 
 
-            for data in [study, work, programming, workout]:
-                if not session.query(TagInfo).filter(TagInfo.tag_id == data.tag_id).first():
-                    session.add(data)
-                    session.commit()
-            break
-        except OperationalError:
-            sleep(10)
+    for data in [study, work, programming, workout]:
+        if not session.query(TagInfo).filter(TagInfo.tag_id == data.tag_id).first():
+            session.add(data)
+            session.commit()
 
 SessionClass = sessionmaker(engine)
 session = SessionClass()

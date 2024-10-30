@@ -8,7 +8,6 @@ COPY backend/wait-for-it.sh /wait-for-it.sh
 RUN apt update && apt upgrade -y
 RUN apt install -y gcc libmariadb-dev libopencv-dev
 
-
 RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ .
 

@@ -117,7 +117,7 @@ class RoomTag(Base):
     tag_id = Column(String(26), ForeignKey('tag_info.tag_id', ondelete='CASCADE'), primary_key=True)
 
 # データベースエンジンの作成
-engine = create_engine('mysql://pomodoro:pomodoro@db:3306/pomodoro')
+engine = create_engine('mysql://pomodoro:pomodoro@sp_2405-db-1:3306/pomodoro')
 
 def create():
     # テーブルの作成

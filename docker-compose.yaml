@@ -13,7 +13,7 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     environment:
-      - DATABASE_URL=mysql://pomodoro:pomodoro@db:3306/pomodoro
+      - DATABASE_URL=mysql://pomodoro:pomodoro@sp_2405-db-1:3306/pomodoro
     ports:
       - "8000:8000"
     depends_on:

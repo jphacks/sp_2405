@@ -5,7 +5,7 @@ WORKDIR /app
 COPY backend/requirements.txt .
 
 RUN apt update && apt upgrade -y
-RUN apt install -y gcc libmariadb-dev
+RUN apt install -y gcc libmariadb-dev libopencv-dev
 
 
 RUN pip install --no-cache-dir -r requirements.txt

@@ -3,7 +3,9 @@ from pathlib import Path
 import base64
 import re
 import hashlib
+from time import sleep
 
+from MySQLdb import OperationalError
 from sqlalchemy import Boolean, create_engine, Column, String, DateTime, Integer, ForeignKey, select, or_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker, joinedload, selectinload
@@ -118,18 +120,23 @@ class RoomTag(Base):
 engine = create_engine('mysql://pomodoro:pomodoro@db:3306/pomodoro')
 
 def create():
-    # テーブルの作成
-    Base.metadata.create_all(engine)
-    study = TagInfo(tag_id='tag1', name='Study', color='#F24822')
-    work = TagInfo(tag_id='tag2', name='Work', color='#52f00e')
-    programming = TagInfo(tag_id='tag3', name='Programming', color='#FFA629')
-    workout = TagInfo(tag_id='tag4', name='Workout', color='#FACC00')
+    while True:
+        try:
+            # テーブルの作成
+            Base.metadata.create_all(engine)
+            study = TagInfo(tag_id='tag1', name='Study', color='#F24822')
+            work = TagInfo(tag_id='tag2', name='Work', color='#52f00e')
+            programming = TagInfo(tag_id='tag3', name='Programming', color='#FFA629')
+            workout = TagInfo(tag_id='tag4', name='Workout', color='#FACC00')
 
 
-    for data in [study, work, programming, workout]:
-        if not session.query(TagInfo).filter(TagInfo.tag_id == data.tag_id).first():
-            session.add(data)
-            session.commit()
+            for data in [study, work, programming, workout]:
+                if not session.query(TagInfo).filter(TagInfo.tag_id == data.tag_id).first():
+                    session.add(data)
+                    session.commit()
+            break
+        except OperationalError:
+            sleep(10)
 
 SessionClass = sessionmaker(engine)
 session = SessionClass()

@@ -6,8 +6,9 @@ import { Link } from 'react-router-dom';
 import axios from "axios";
 import styles from '../css/components/register.module.scss';
 
+const url = import.meta.env.VITE_API_URL;
+
 const Register = () => {
-  const url = 'http://localhost:8000/api/auth/register';
   const navigate = useNavigate();
 
   type Inputs = {
@@ -18,7 +19,7 @@ const Register = () => {
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
-      const response = await axios.post(url, data);
+      const response = await axios.post(`${url}/auth/register`, data);
       console.log(response.data);
       alert("登録が成功しました。ログインしてください。");
       navigate("/auth/login");

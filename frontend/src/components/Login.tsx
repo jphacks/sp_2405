@@ -10,6 +10,8 @@ type LoginCred = {
   password: string,
 }
 
+const url = import.meta.env.VITE_API_URL;
+
 const Login = () => {
   const { handleSubmit, control, formState: { errors } } = useForm();
   const navigate = useNavigate();
@@ -29,7 +31,7 @@ const Login = () => {
       password: hashHex,
     };
 
-    const res = await axios.post("http://localhost:8000/api/auth/login", data, {
+    const res = await axios.post(`${url}/auth/login`, data, {
       withCredentials: true,
     });
     console.log(res.data);

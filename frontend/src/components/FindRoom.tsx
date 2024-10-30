@@ -8,6 +8,8 @@ import CreateRoom from './CreateRoom'
 import Cookies from "js-cookie";
 import { useNavigate } from 'react-router-dom'
 
+const url = import.meta.env.VITE_API_URL;
+
 const FindRoom = () => {
   type RoomType = {
     room_id: string;
@@ -41,8 +43,6 @@ const FindRoom = () => {
     if (tag === selectedTag) setSelectedTag(null);
     else setSelectedTag(tag);
   };
-
-  const url = "http://localhost:8000/api/";
 
   const handleSearch = async () => {
     const res = await axios.post(

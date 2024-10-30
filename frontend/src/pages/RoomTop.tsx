@@ -78,6 +78,9 @@ type RoomDataType = {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+const url = import.meta.env.VITE_API_URL;
+const wsUrl = import.meta.env.VITE_WS_URL;
+
 const RoomTop: React.FC = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState<number>(0); // 0: Waiting, 1: Focus, 2: Rest Start, 3: Rest Review
@@ -174,7 +177,7 @@ const RoomTop: React.FC = () => {
   const { userData } = useContext(AuthContext);
 
   const fetchRoom = async () => {
-    const res = await axios.get('http://localhost:8000/api/get_room', {withCredentials: true})
+    const res = await axios.get(`${url}/get_room`, {withCredentials: true})
     // console.log(res.data);
     const raw_room = res.data.room;
     const raw_progress: RawProgressType[] = res.data.progress;
@@ -212,7 +215,7 @@ const RoomTop: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams({user_id: userData.user_id});
     const ws = new WebSocket(
-      `ws://localhost:8000/api/ws/room?${params.toString()}`
+      `${wsUrl}/ws/room?${params.toString()}`
     );
 
     socketRef.current = ws;
@@ -471,7 +474,7 @@ const RoomTop: React.FC = () => {
             progress_comment: comment,
             room_id: room.roomId,
           }
-          const res = await axios.post('http://localhost:8000/api/ws/save_progress', data, {withCredentials: true})
+          const res = await axios.post(`${url}/ws/save_progress`, data, {withCredentials: true})
           console.log(res);
           // ここでbackendに送信する処理を行う
           // fetch('/api/submit', {

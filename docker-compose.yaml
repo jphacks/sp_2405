@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   frontend:
@@ -13,7 +13,7 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     environment:
-      - DATABASE_URL=mysql://user:password@db/dbname
+      - DATABASE_URL=mysql://pomodoro:pomodoro@db:3306/pomodoro
     ports:
       - "8000:8000"
     depends_on:
@@ -22,10 +22,10 @@ services:
   db:
     image: mysql:8
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: dbname
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: pomodoro
+      MYSQL_DATABASE: pomodoro
+      MYSQL_USER: pomodoro
+      MYSQL_PASSWORD: pomodoro
     volumes:
       - mysql_data:/var/lib/mysql
     ports:

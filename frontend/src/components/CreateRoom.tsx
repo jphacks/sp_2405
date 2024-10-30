@@ -18,6 +18,8 @@ interface ModalProps {
 
 const tagOptions = ["Study", "Work", "Programming", "Workout"];
 
+const url = import.meta.env.VITE_API_URL;
+
 const CreateRoom = ({open, onClose}: ModalProps) => {
   const {
     handleSubmit,
@@ -46,7 +48,7 @@ const CreateRoom = ({open, onClose}: ModalProps) => {
       tag: raw.tag,
     };
 
-    const res = await axios.post('http://localhost:8000/api/create_room', data, {withCredentials: true});
+    const res = await axios.post(`${url}/create_room`, data, {withCredentials: true});
     console.log(res.data)
     // Cookies.set("ROOM_ID", room_id, { expires: 10 });
 

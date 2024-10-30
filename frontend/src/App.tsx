@@ -4,8 +4,9 @@ import { AuthContext } from "./contexts/AuthContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const url = import.meta.env.VITE_API_URL;
+
 function App() {
-  const url = "http://localhost:8000/api";
   const navigate = useNavigate();
 
   const [userData, setUserData] = useState({

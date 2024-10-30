@@ -3,7 +3,7 @@ FROM python:3.10-slim
 
 WORKDIR /app
 COPY backend/requirements.txt .
-COPY wait-for-it.sh /wait-for-it.sh
+COPY backend/wait-for-it.sh /wait-for-it.sh
 
 RUN apt update && apt upgrade -y
 RUN apt install -y gcc libmariadb-dev libopencv-dev

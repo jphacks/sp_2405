@@ -17,7 +17,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const onSubmit = async (raw: LoginCred) => {
-    const hashBuffer = await window.crypto.subtle.digest(
+    const hashBuffer = await crypto.subtle.digest(
       "SHA-256",
       new TextEncoder().encode(raw.password)
     );

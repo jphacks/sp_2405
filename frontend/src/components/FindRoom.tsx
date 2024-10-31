@@ -46,7 +46,7 @@ const FindRoom = () => {
 
   const handleSearch = async () => {
     const res = await axios.post(
-      url + "search_rooms",
+      url + "/search_rooms",
       { param: searchQuery, tag: selectedTag },
       { withCredentials: true }
     );
@@ -56,7 +56,7 @@ const FindRoom = () => {
   };
 
   const fetchRooms = async () => {
-    const res = await axios.get(url + "rooms", { withCredentials: true });
+    const res = await axios.get(url + "/rooms", { withCredentials: true });
     // console.log(res.data);
     setRooms(res.data.data as RoomType[]);
   };

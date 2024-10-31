@@ -98,7 +98,7 @@
 
 サーバー関係
 - Nginx
-- Docker
+- ~~Docker~~
 - GCP Compute Engine
 
 ![](./tapi.png)

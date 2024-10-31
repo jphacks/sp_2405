@@ -1,7 +1,7 @@
 # ぽもとも
 ![readme](readme.png)
 
-[デモはこちらから](http://34.121.150.190)
+[デモはこちらから](https://pomotomo.net)
 
 <video src="https://youtu.be/0uB6-KIObo4" controls="true"></video>
 ## 製品概要
